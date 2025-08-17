@@ -15,7 +15,7 @@
     
     <script type="text/babel">
         const { useState, useMemo, useEffect } = React;
-        const { Calculator, TrendingUp, Calendar, DollarSign, Link, Copy } = lucide;
+        const { Calculator, TrendingUp, Calendar, DollarSign, Link, Copy } = window.lucide;
 
         const StockOptionCalculator = () => {
           // Current date for calculations
@@ -164,7 +164,7 @@
                       onClick={copyToClipboard}
                       className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
                     >
-                      {showShareUrl ? React.createElement(Copy, { className: "w-4 h-4" }) : React.createElement(Link, { className: "w-4 h-4" })}
+                      {showShareUrl ? <Copy className="w-4 h-4" /> : <Link className="w-4 h-4" />}
                       {showShareUrl ? 'Copied!' : 'Share Configuration'}
                     </button>
                   </div>
@@ -174,7 +174,7 @@
                   {/* Stock Position */}
                   <div className="bg-white rounded-xl shadow-lg p-6">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                      {React.createElement(TrendingUp, { className: "w-5 h-5 text-green-600" })}
+                      <TrendingUp className="w-5 h-5 text-green-600" />
                       Stock Position
                     </h2>
                     
@@ -209,7 +209,7 @@
                   {/* Option Position */}
                   <div className="bg-white rounded-xl shadow-lg p-6">
                     <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                      {React.createElement(DollarSign, { className: "w-5 h-5 text-purple-600" })}
+                      <DollarSign className="w-5 h-5 text-purple-600" />
                       Option Position
                     </h2>
                     
@@ -288,7 +288,7 @@
                 {/* Future Projections */}
                 <div className="bg-white rounded-xl shadow-lg p-6">
                   <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    {React.createElement(Calendar, { className: "w-5 h-5 text-blue-600" })}
+                    <Calendar className="w-5 h-5 text-blue-600" />
                     Future Projections
                   </h2>
                   
@@ -416,7 +416,7 @@
           );
         };
 
-        ReactDOM.render(React.createElement(StockOptionCalculator), document.getElementById('root'));
+        ReactDOM.render(<StockOptionCalculator />, document.getElementById('root'));
     </script>
 </body>
 </html>
