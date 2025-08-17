@@ -1,422 +1,557 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Stock & Option Calculator</title>
-    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        :root {
+            --bs-primary: #6366f1;
+            --bs-primary-rgb: 99, 102, 241;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+        
+        .form-control, .form-select {
+            border-radius: 12px;
+            border: 2px solid #e9ecef;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background: linear-gradient(45deg, #5855eb, #7c3aed);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        .form-range {
+            height: 8px;
+        }
+        
+        .form-range::-webkit-slider-thumb {
+            background: linear-gradient(45deg, #6366f1, #8b5cf6);
+            border: 3px solid white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+        
+        .position-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.7));
+            backdrop-filter: blur(10px);
+        }
+        
+        .stock-card {
+            border-left: 5px solid #10b981;
+        }
+        
+        .option-card {
+            border-left: 5px solid #8b5cf6;
+        }
+        
+        .total-card {
+            border-left: 5px solid #6366f1;
+        }
+        
+        .profit {
+            color: #10b981 !important;
+            font-weight: 700;
+        }
+        
+        .loss {
+            color: #ef4444 !important;
+            font-weight: 700;
+        }
+        
+        .hero-section {
+            background: rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        
+        .icon-wrapper {
+            width: 50px;
+            height: 50px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(45deg, var(--icon-color), var(--icon-color-light));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .animate-fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+    </style>
 </head>
-<body>
-    <div id="root"></div>
-    
-    <script type="text/babel">
-        const { useState, useMemo, useEffect } = React;
-        const { Calculator, TrendingUp, Calendar, DollarSign, Link, Copy } = window.lucide;
-
-        const StockOptionCalculator = () => {
-          // Current date for calculations
-          const today = new Date();
-          const maxDate = new Date();
-          maxDate.setFullYear(today.getFullYear() + 2);
-
-          // Parse URL parameters
-          const getUrlParams = () => {
-            const params = new URLSearchParams(window.location.search);
-            return {
-              sq: params.get('sq'), // stock quantity
-              sp: params.get('sp'), // stock price
-              oq: params.get('oq'), // option quantity
-              ot: params.get('ot'), // option type
-              os: params.get('os'), // option strike
-              op: params.get('op'), // option premium
-              oe: params.get('oe'), // option expiration
-            };
-          };
-
-          const urlParams = getUrlParams();
-
-          // State for positions with URL defaults
-          const [stockPosition, setStockPosition] = useState({
-            quantity: urlParams.sq ? parseInt(urlParams.sq) : 100,
-            purchasePrice: urlParams.sp ? parseFloat(urlParams.sp) : 150,
-          });
-
-          const [optionPosition, setOptionPosition] = useState({
-            quantity: urlParams.oq ? parseInt(urlParams.oq) : 1,
-            type: urlParams.ot || 'call', // 'call' or 'put'
-            strike: urlParams.os ? parseFloat(urlParams.os) : 155,
-            premium: urlParams.op ? parseFloat(urlParams.op) : 3.50,
-            expiration: urlParams.oe || '2025-12-19',
-          });
-
-          // State for sharing
-          const [showShareUrl, setShowShareUrl] = useState(false);
-
-          // State for future projections
-          const [priceChangePercent, setPriceChangePercent] = useState(6.67); // Default to ~6.67% gain (160 from 150)
-          const [futureDateDays, setFutureDateDays] = useState(107); // Default to about 107 days from today
-
-          // Calculate future price based on percentage change
-          const futurePrice = useMemo(() => {
-            return stockPosition.purchasePrice * (1 + priceChangePercent / 100);
-          }, [stockPosition.purchasePrice, priceChangePercent]);
-
-          // Calculate future date based on slider
-          const futureDate = useMemo(() => {
-            const date = new Date(today);
-            date.setDate(date.getDate() + futureDateDays);
-            return date.toISOString().split('T')[0];
-          }, [futureDateDays, today]);
-
-          // Calculate max days to expiration
-          const maxDaysToExpiration = useMemo(() => {
-            const expiry = new Date(optionPosition.expiration);
-            return Math.max(0, Math.ceil((expiry - today) / (1000 * 60 * 60 * 24)));
-          }, [optionPosition.expiration, today]);
-
-          // Calculate days to expiration
-          const daysToExpiration = useMemo(() => {
-            const future = new Date(futureDate);
-            const expiry = new Date(optionPosition.expiration);
-            return Math.max(0, Math.ceil((expiry - future) / (1000 * 60 * 60 * 24)));
-          }, [futureDate, optionPosition.expiration]);
-
-          // Black-Scholes approximation for option value
-          const calculateOptionValue = useMemo(() => {
-            if (daysToExpiration <= 0) {
-              // Option expired - calculate intrinsic value
-              if (optionPosition.type === 'call') {
-                return Math.max(0, futurePrice - optionPosition.strike);
-              } else {
-                return Math.max(0, optionPosition.strike - futurePrice);
-              }
-            }
-
-            // Simplified option value calculation (time value + intrinsic value)
-            const timeValue = Math.max(0.1, (daysToExpiration / 365) * 2); // Rough approximation
-            let intrinsicValue = 0;
-            
-            if (optionPosition.type === 'call') {
-              intrinsicValue = Math.max(0, futurePrice - optionPosition.strike);
-            } else {
-              intrinsicValue = Math.max(0, optionPosition.strike - futurePrice);
-            }
-
-            return intrinsicValue + timeValue;
-          }, [futurePrice, optionPosition, daysToExpiration]);
-
-          // Calculate position values
-          const stockValue = stockPosition.quantity * futurePrice;
-          const stockCost = stockPosition.quantity * stockPosition.purchasePrice;
-          const stockPnL = stockValue - stockCost;
-
-          const optionValue = optionPosition.quantity * 100 * calculateOptionValue; // Options are per 100 shares
-          const optionCost = optionPosition.quantity * 100 * optionPosition.premium;
-          const optionPnL = optionValue - optionCost;
-
-          const totalValue = stockValue + optionValue;
-          const totalCost = stockCost + optionCost;
-          const totalPnL = totalValue - totalCost;
-
-          // Generate shareable URL
-          const generateShareUrl = () => {
-            const baseUrl = window.location.origin + window.location.pathname;
-            const params = new URLSearchParams({
-              sq: stockPosition.quantity.toString(),
-              sp: stockPosition.purchasePrice.toString(),
-              oq: optionPosition.quantity.toString(),
-              ot: optionPosition.type,
-              os: optionPosition.strike.toString(),
-              op: optionPosition.premium.toString(),
-              oe: optionPosition.expiration,
-            });
-            return `${baseUrl}?${params.toString()}`;
-          };
-
-          const copyToClipboard = async () => {
-            try {
-              await navigator.clipboard.writeText(generateShareUrl());
-              setShowShareUrl(true);
-              setTimeout(() => setShowShareUrl(false), 2000);
-            } catch (err) {
-              console.error('Failed to copy: ', err);
-            }
-          };
-
-          return (
-            <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 p-4">
-              <div className="max-w-6xl mx-auto space-y-6">
-                {/* Header */}
-                <div className="text-center py-6">
-                  <div className="flex items-center justify-center gap-2 mb-2">
-                    <Calculator className="w-8 h-8 text-indigo-600" />
-                    <h1 className="text-3xl font-bold text-gray-800">Portfolio Calculator</h1>
-                  </div>
-                  <p className="text-gray-600">Track your stock and option positions with future projections</p>
-                  
-                  {/* Share Button */}
-                  <div className="mt-4">
-                    <button
-                      onClick={copyToClipboard}
-                      className="inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-                    >
-                      {showShareUrl ? <Copy className="w-4 h-4" /> : <Link className="w-4 h-4" />}
-                      {showShareUrl ? 'Copied!' : 'Share Configuration'}
-                    </button>
-                  </div>
+<body class="gradient-bg">
+    <div class="container py-5">
+        <!-- Header -->
+        <div class="text-center mb-5 animate-fade-in">
+            <div class="hero-section p-5 text-white">
+                <div class="d-flex align-items-center justify-content-center mb-3">
+                    <div class="icon-wrapper me-3">
+                        <i data-lucide="calculator" class="text-white" width="30" height="30"></i>
+                    </div>
+                    <h1 class="display-4 fw-bold mb-0">Portfolio Calculator</h1>
                 </div>
-
-                <div className="grid md:grid-cols-2 gap-6">
-                  {/* Stock Position */}
-                  <div className="bg-white rounded-xl shadow-lg p-6">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                      <TrendingUp className="w-5 h-5 text-green-600" />
-                      Stock Position
-                    </h2>
-                    
-                    <div className="space-y-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Quantity (shares)
-                        </label>
-                        <input
-                          type="number"
-                          value={stockPosition.quantity}
-                          onChange={(e) => setStockPosition({...stockPosition, quantity: +e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        />
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Purchase Price ($)
-                        </label>
-                        <input
-                          type="number"
-                          step="0.01"
-                          value={stockPosition.purchasePrice}
-                          onChange={(e) => setStockPosition({...stockPosition, purchasePrice: +e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Option Position */}
-                  <div className="bg-white rounded-xl shadow-lg p-6">
-                    <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                      <DollarSign className="w-5 h-5 text-purple-600" />
-                      Option Position
-                    </h2>
-                    
-                    <div className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Quantity (contracts)
-                          </label>
-                          <input
-                            type="number"
-                            value={optionPosition.quantity}
-                            onChange={(e) => setOptionPosition({...optionPosition, quantity: +e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Type
-                          </label>
-                          <select
-                            value={optionPosition.type}
-                            onChange={(e) => setOptionPosition({...optionPosition, type: e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                          >
-                            <option value="call">Call</option>
-                            <option value="put">Put</option>
-                          </select>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Strike Price ($)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={optionPosition.strike}
-                            onChange={(e) => setOptionPosition({...optionPosition, strike: +e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                          />
-                        </div>
-                        
-                        <div>
-                          <label className="block text-sm font-medium text-gray-700 mb-1">
-                            Premium Paid ($)
-                          </label>
-                          <input
-                            type="number"
-                            step="0.01"
-                            value={optionPosition.premium}
-                            onChange={(e) => setOptionPosition({...optionPosition, premium: +e.target.value})}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                          />
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">
-                          Expiration Date
-                        </label>
-                        <input
-                          type="date"
-                          value={optionPosition.expiration}
-                          onChange={(e) => setOptionPosition({...optionPosition, expiration: e.target.value})}
-                          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-                        />
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Future Projections */}
-                <div className="bg-white rounded-xl shadow-lg p-6">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                    <Calendar className="w-5 h-5 text-blue-600" />
-                    Future Projections
-                  </h2>
-                  
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Future Date: {futureDateDays} days → {new Date(futureDate).toLocaleDateString()}
-                      </label>
-                      <input
-                        type="range"
-                        min="0"
-                        max={maxDaysToExpiration}
-                        step="1"
-                        value={Math.min(futureDateDays, maxDaysToExpiration)}
-                        onChange={(e) => setFutureDateDays(+e.target.value)}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                      />
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>Today</span>
-                        <span>Expiration ({maxDaysToExpiration} days)</span>
-                      </div>
-                      <p className="text-sm text-gray-600 mt-1">
-                        Days to option expiration: {daysToExpiration}
-                      </p>
-                    </div>
-                    
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-2">
-                        Price Change: {priceChangePercent >= 0 ? '+' : ''}{priceChangePercent.toFixed(1)}% → ${futurePrice.toFixed(2)}
-                      </label>
-                      <input
-                        type="range"
-                        min="-100"
-                        max="100"
-                        step="0.1"
-                        value={priceChangePercent}
-                        onChange={(e) => setPriceChangePercent(+e.target.value)}
-                        className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
-                      />
-                      <div className="flex justify-between text-xs text-gray-500 mt-1">
-                        <span>-100%</span>
-                        <span>0%</span>
-                        <span>+100%</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Results */}
-                <div className="bg-white rounded-xl shadow-lg p-6">
-                  <h2 className="text-xl font-semibold text-gray-800 mb-4">Portfolio Summary</h2>
-                  
-                  <div className="grid md:grid-cols-3 gap-6">
-                    {/* Stock Summary */}
-                    <div className="bg-green-50 rounded-lg p-4">
-                      <h3 className="font-semibold text-green-800 mb-2">Stock Position</h3>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>Current Value:</span>
-                          <span className="font-medium">${stockValue.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Cost Basis:</span>
-                          <span>${stockCost.toLocaleString()}</span>
-                        </div>
-                        <div className={`flex justify-between font-semibold ${stockPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          <span>P&L:</span>
-                          <span>{stockPnL >= 0 ? '+' : ''}${stockPnL.toLocaleString()}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Option Summary */}
-                    <div className="bg-purple-50 rounded-lg p-4">
-                      <h3 className="font-semibold text-purple-800 mb-2">Option Position</h3>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>Current Value:</span>
-                          <span className="font-medium">${optionValue.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Premium Paid:</span>
-                          <span>${optionCost.toLocaleString()}</span>
-                        </div>
-                        <div className={`flex justify-between font-semibold ${optionPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          <span>P&L:</span>
-                          <span>{optionPnL >= 0 ? '+' : ''}${optionPnL.toLocaleString()}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Total Summary */}
-                    <div className="bg-indigo-50 rounded-lg p-4">
-                      <h3 className="font-semibold text-indigo-800 mb-2">Total Portfolio</h3>
-                      <div className="space-y-1 text-sm">
-                        <div className="flex justify-between">
-                          <span>Total Value:</span>
-                          <span className="font-medium">${totalValue.toLocaleString()}</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span>Total Cost:</span>
-                          <span>${totalCost.toLocaleString()}</span>
-                        </div>
-                        <div className={`flex justify-between font-bold text-lg ${totalPnL >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                          <span>Net P&L:</span>
-                          <span>{totalPnL >= 0 ? '+' : ''}${totalPnL.toLocaleString()}</span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Additional Info */}
-                  <div className="mt-4 p-3 bg-gray-50 rounded-lg">
-                    <p className="text-xs text-gray-600">
-                      <strong>Note:</strong> Option values are estimated using a simplified model. 
-                      {daysToExpiration > 0 
-                        ? ` Time value decreases as expiration approaches (${daysToExpiration} days remaining).`
-                        : ' Option has expired - showing intrinsic value only.'
-                      }
-                    </p>
-                  </div>
-                </div>
-              </div>
+                <p class="lead">Track your stock and option positions with future projections</p>
+                
+                <button id="share-btn" class="btn btn-primary btn-lg mt-3">
+                    <i data-lucide="link" width="20" height="20" class="me-2"></i>
+                    <span>Share Configuration</span>
+                </button>
             </div>
-          );
-        };
+        </div>
 
-        ReactDOM.render(<StockOptionCalculator />, document.getElementById('root'));
+        <div class="row g-4 mb-4">
+            <!-- Stock Position -->
+            <div class="col-lg-6">
+                <div class="card position-card stock-card h-100 animate-fade-in">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="section-icon me-3" style="--icon-color: #10b981; --icon-color-light: #34d399;">
+                                <i data-lucide="trending-up" class="text-white" width="24" height="24"></i>
+                            </div>
+                            <h3 class="card-title mb-0 fw-bold">Stock Position</h3>
+                        </div>
+                        
+                        <div class="row g-3">
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Quantity (shares)</label>
+                                <input type="number" id="stock-quantity" value="100" class="form-control form-control-lg">
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Purchase Price ($)</label>
+                                <div class="input-group input-group-lg">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" id="stock-price" value="150" class="form-control">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Option Position -->
+            <div class="col-lg-6">
+                <div class="card position-card option-card h-100 animate-fade-in">
+                    <div class="card-body p-4">
+                        <div class="d-flex align-items-center mb-4">
+                            <div class="section-icon me-3" style="--icon-color: #8b5cf6; --icon-color-light: #a78bfa;">
+                                <i data-lucide="dollar-sign" class="text-white" width="24" height="24"></i>
+                            </div>
+                            <h3 class="card-title mb-0 fw-bold">Option Position</h3>
+                        </div>
+                        
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Quantity (contracts)</label>
+                                <input type="number" id="option-quantity" value="1" class="form-control form-control-lg">
+                            </div>
+                            
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Type</label>
+                                <select id="option-type" class="form-select form-select-lg">
+                                    <option value="call">Call</option>
+                                    <option value="put">Put</option>
+                                </select>
+                            </div>
+                            
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Strike Price ($)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" id="option-strike" value="155" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <div class="col-6">
+                                <label class="form-label fw-semibold">Premium Paid ($)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">$</span>
+                                    <input type="number" step="0.01" id="option-premium" value="3.50" class="form-control">
+                                </div>
+                            </div>
+                            
+                            <div class="col-12">
+                                <label class="form-label fw-semibold">Expiration Date</label>
+                                <input type="date" id="option-expiration" value="2025-12-19" class="form-control form-control-lg">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Future Projections -->
+        <div class="card glassmorphism mb-4 animate-fade-in">
+            <div class="card-body p-4">
+                <div class="d-flex align-items-center mb-4">
+                    <div class="section-icon me-3" style="--icon-color: #3b82f6; --icon-color-light: #60a5fa;">
+                        <i data-lucide="calendar" class="text-white" width="24" height="24"></i>
+                    </div>
+                    <h3 class="card-title mb-0 fw-bold text-white">Future Projections</h3>
+                </div>
+                
+                <div class="row g-4">
+                    <div class="col-lg-6">
+                        <label class="form-label text-white fw-semibold">
+                            <span id="date-label">Future Date: 107 days → 12/1/2025</span>
+                        </label>
+                        <input type="range" id="date-slider" min="0" max="500" step="1" value="107" class="form-range mb-2">
+                        <div class="d-flex justify-content-between small text-white-50">
+                            <span>Today</span>
+                            <span id="expiration-label">Expiration (500 days)</span>
+                        </div>
+                        <p class="small text-white mt-2">
+                            <span id="days-to-expiry">Days to option expiration: 393</span>
+                        </p>
+                    </div>
+                    
+                    <div class="col-lg-6">
+                        <label class="form-label text-white fw-semibold">
+                            <span id="price-label">Price Change: +6.7% → $160.00</span>
+                        </label>
+                        <input type="range" id="price-slider" min="-100" max="100" step="0.1" value="6.7" class="form-range mb-2">
+                        <div class="d-flex justify-content-between small text-white-50">
+                            <span>-100%</span>
+                            <span>0%</span>
+                            <span>+100%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Results -->
+        <div class="card position-card animate-fade-in">
+            <div class="card-body p-4">
+                <h2 class="card-title fw-bold mb-4">
+                    <i data-lucide="bar-chart-3" class="me-2" width="28" height="28"></i>
+                    Portfolio Summary
+                </h2>
+                
+                <div class="row g-4">
+                    <!-- Stock Summary -->
+                    <div class="col-lg-4">
+                        <div class="card stock-card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-success fw-bold mb-3">
+                                    <i data-lucide="trending-up" class="me-2"></i>
+                                    Stock Position
+                                </h5>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Current Value:</span>
+                                        <span class="fw-bold" id="stock-value">$16,000</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Cost Basis:</span>
+                                        <span id="stock-cost">$15,000</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between" id="stock-pnl-container">
+                                        <span class="fw-bold">P&L:</span>
+                                        <span class="fw-bold fs-5" id="stock-pnl">+$1,000</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Option Summary -->
+                    <div class="col-lg-4">
+                        <div class="card option-card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title fw-bold mb-3" style="color: #8b5cf6;">
+                                    <i data-lucide="dollar-sign" class="me-2"></i>
+                                    Option Position
+                                </h5>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Current Value:</span>
+                                        <span class="fw-bold" id="option-value">$500</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Premium Paid:</span>
+                                        <span id="option-cost">$350</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between" id="option-pnl-container">
+                                        <span class="fw-bold">P&L:</span>
+                                        <span class="fw-bold fs-5" id="option-pnl">+$150</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Summary -->
+                    <div class="col-lg-4">
+                        <div class="card total-card h-100">
+                            <div class="card-body text-center">
+                                <h5 class="card-title text-primary fw-bold mb-3">
+                                    <i data-lucide="wallet" class="me-2"></i>
+                                    Total Portfolio
+                                </h5>
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Total Value:</span>
+                                        <span class="fw-bold" id="total-value">$16,500</span>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>Total Cost:</span>
+                                        <span id="total-cost">$15,350</span>
+                                    </div>
+                                    <hr>
+                                    <div class="d-flex justify-content-between" id="total-pnl-container">
+                                        <span class="fw-bold">Net P&L:</span>
+                                        <span class="fw-bold fs-4" id="total-pnl">+$1,150</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Info -->
+                <div class="alert alert-info mt-4" role="alert">
+                    <i data-lucide="info" class="me-2" width="20" height="20"></i>
+                    <strong>Note:</strong> Option values are estimated using a simplified model. 
+                    <span id="time-decay-note">Time value decreases as expiration approaches (393 days remaining).</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            // Wait for lucide to load, then initialize icons
+            function initializeLucide() {
+                if (typeof window.lucide !== 'undefined') {
+                    window.lucide.createIcons();
+                } else {
+                    setTimeout(initializeLucide, 100);
+                }
+            }
+            initializeLucide();
+
+            // Parse URL parameters
+            function getUrlParams() {
+                const params = new URLSearchParams(window.location.search);
+                return {
+                    sq: params.get('sq'),
+                    sp: params.get('sp'),
+                    oq: params.get('oq'),
+                    ot: params.get('ot'),
+                    os: params.get('os'),
+                    op: params.get('op'),
+                    oe: params.get('oe')
+                };
+            }
+
+            // Load values from URL if present
+            const urlParams = getUrlParams();
+            if (urlParams.sq) $('#stock-quantity').val(parseInt(urlParams.sq));
+            if (urlParams.sp) $('#stock-price').val(parseFloat(urlParams.sp));
+            if (urlParams.oq) $('#option-quantity').val(parseInt(urlParams.oq));
+            if (urlParams.ot) $('#option-type').val(urlParams.ot);
+            if (urlParams.os) $('#option-strike').val(parseFloat(urlParams.os));
+            if (urlParams.op) $('#option-premium').val(parseFloat(urlParams.op));
+            if (urlParams.oe) $('#option-expiration').val(urlParams.oe);
+
+            // Calculate and update display
+            function calculate() {
+                const today = new Date();
+                
+                // Get values
+                const stockQty = parseFloat($('#stock-quantity').val()) || 0;
+                const stockPrice = parseFloat($('#stock-price').val()) || 0;
+                const optionQty = parseFloat($('#option-quantity').val()) || 0;
+                const optionType = $('#option-type').val();
+                const optionStrike = parseFloat($('#option-strike').val()) || 0;
+                const optionPremium = parseFloat($('#option-premium').val()) || 0;
+                const optionExpiration = new Date($('#option-expiration').val());
+                
+                const priceChangePercent = parseFloat($('#price-slider').val()) || 0;
+                const futureDateDays = parseInt($('#date-slider').val()) || 0;
+                
+                // Calculate future price and date
+                const futurePrice = stockPrice * (1 + priceChangePercent / 100);
+                const futureDate = new Date(today);
+                futureDate.setDate(futureDate.getDate() + futureDateDays);
+                
+                // Calculate max days to expiration
+                const maxDaysToExpiration = Math.max(0, Math.ceil((optionExpiration - today) / (1000 * 60 * 60 * 24)));
+                const daysToExpiration = Math.max(0, Math.ceil((optionExpiration - futureDate) / (1000 * 60 * 60 * 24)));
+                
+                // Update slider max
+                $('#date-slider').attr('max', maxDaysToExpiration);
+                $('#expiration-label').text(`Expiration (${maxDaysToExpiration} days)`);
+                
+                // Update labels
+                $('#date-label').text(`Future Date: ${futureDateDays} days → ${futureDate.toLocaleDateString()}`);
+                $('#price-label').text(`Price Change: ${priceChangePercent >= 0 ? '+' : ''}${priceChangePercent.toFixed(1)}% → $${futurePrice.toFixed(2)}`);
+                $('#days-to-expiry').text(`Days to option expiration: ${daysToExpiration}`);
+                
+                // Calculate option value
+                let optionValue = 0;
+                if (daysToExpiration <= 0) {
+                    // Option expired - intrinsic value only
+                    if (optionType === 'call') {
+                        optionValue = Math.max(0, futurePrice - optionStrike);
+                    } else {
+                        optionValue = Math.max(0, optionStrike - futurePrice);
+                    }
+                } else {
+                    // Simplified option pricing
+                    const timeValue = Math.max(0.1, (daysToExpiration / 365) * 2);
+                    let intrinsicValue = 0;
+                    
+                    if (optionType === 'call') {
+                        intrinsicValue = Math.max(0, futurePrice - optionStrike);
+                    } else {
+                        intrinsicValue = Math.max(0, optionStrike - futurePrice);
+                    }
+                    
+                    optionValue = intrinsicValue + timeValue;
+                }
+                
+                // Calculate position values
+                const stockValue = stockQty * futurePrice;
+                const stockCost = stockQty * stockPrice;
+                const stockPnL = stockValue - stockCost;
+                
+                const optionValueTotal = optionQty * 100 * optionValue;
+                const optionCost = optionQty * 100 * optionPremium;
+                const optionPnL = optionValueTotal - optionCost;
+                
+                const totalValue = stockValue + optionValueTotal;
+                const totalCost = stockCost + optionCost;
+                const totalPnL = totalValue - totalCost;
+                
+                // Update display
+                $('#stock-value').text(`$${stockValue.toLocaleString()}`);
+                $('#stock-cost').text(`$${stockCost.toLocaleString()}`);
+                $('#stock-pnl').text(`${stockPnL >= 0 ? '+' : ''}$${stockPnL.toLocaleString()}`);
+                $('#stock-pnl-container').removeClass('text-green-600 text-red-600').addClass(stockPnL >= 0 ? 'text-green-600' : 'text-red-600');
+                
+                $('#option-value').text(`$${optionValueTotal.toLocaleString()}`);
+                $('#option-cost').text(`$${optionCost.toLocaleString()}`);
+                $('#option-pnl').text(`${optionPnL >= 0 ? '+' : ''}$${optionPnL.toLocaleString()}`);
+                $('#option-pnl-container').removeClass('text-green-600 text-red-600').addClass(optionPnL >= 0 ? 'text-green-600' : 'text-red-600');
+                
+                $('#total-value').text(`$${totalValue.toLocaleString()}`);
+                $('#total-cost').text(`$${totalCost.toLocaleString()}`);
+                $('#total-pnl').text(`${totalPnL >= 0 ? '+' : ''}$${totalPnL.toLocaleString()}`);
+                $('#total-pnl-container').removeClass('text-green-600 text-red-600').addClass(totalPnL >= 0 ? 'text-green-600' : 'text-red-600');
+                
+                // Update time decay note
+                if (daysToExpiration > 0) {
+                    $('#time-decay-note').text(`Time value decreases as expiration approaches (${daysToExpiration} days remaining).`);
+                } else {
+                    $('#time-decay-note').text('Option has expired - showing intrinsic value only.');
+                }
+            }
+
+            // Generate shareable URL
+            function generateShareUrl() {
+                const baseUrl = window.location.origin + window.location.pathname;
+                const params = new URLSearchParams({
+                    sq: $('#stock-quantity').val(),
+                    sp: $('#stock-price').val(),
+                    oq: $('#option-quantity').val(),
+                    ot: $('#option-type').val(),
+                    os: $('#option-strike').val(),
+                    op: $('#option-premium').val(),
+                    oe: $('#option-expiration').val()
+                });
+                return `${baseUrl}?${params.toString()}`;
+            }
+
+            // Share button functionality
+            $('#share-btn').click(async function() {
+                try {
+                    await navigator.clipboard.writeText(generateShareUrl());
+                    const $btn = $(this);
+                    const $icon = $btn.find('i');
+                    const $text = $btn.find('span');
+                    
+                    $icon.attr('data-lucide', 'copy');
+                    $text.text('Copied!');
+                    window.lucide.createIcons();
+                    
+                    setTimeout(() => {
+                        $icon.attr('data-lucide', 'link');
+                        $text.text('Share Configuration');
+                        window.lucide.createIcons();
+                    }, 2000);
+                } catch (err) {
+                    console.error('Failed to copy: ', err);
+                }
+            });
+
+            // Event listeners
+            $('#stock-quantity, #stock-price, #option-quantity, #option-type, #option-strike, #option-premium, #option-expiration').on('input change', calculate);
+            $('#price-slider, #date-slider').on('input', calculate);
+
+            // Initial calculation
+            calculate();
+        });
     </script>
 </body>
 </html>
