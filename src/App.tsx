@@ -32,6 +32,26 @@ const theme = createTheme({
       main: '#1b5e20',
     },
   },
+  components: {
+    MuiFilledInput: {
+      styleOverrides: {
+        root: {
+          '&:before': {
+            borderBottomColor: '#5f5f5f',
+          },
+          '&:hover:not(.Mui-disabled):before': {
+            borderBottomColor: '#5f5f5f',
+          },
+          '&.Mui-focused:before': {
+            borderBottomColor: '#5f5f5f',
+          },
+          '&:after': {
+            borderBottomColor: '#5f5f5f',
+          },
+        },
+      },
+    },
+  },
 });
 
 interface MarketData {
