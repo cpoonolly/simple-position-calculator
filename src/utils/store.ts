@@ -1,4 +1,4 @@
-import { Market, Portfolio, OptionTrade, StockTrade, OptionSide, Position } from '../dataTypes';
+import { Market, Portfolio, OptionTrade, StockTrade, OptionSide, Position } from '../types';
 
 const MARKET_KEY = 'portfolio-calculator-market';
 const PORTFOLIO_KEY = 'portfolio-calculator-portfolio';

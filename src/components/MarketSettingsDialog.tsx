@@ -13,7 +13,7 @@ import {
 } from '@mui/material';
 
 import { FileUpload as ImportIcon, FileDownload as ExportIcon } from '@mui/icons-material';
-import { Market, Portfolio } from '../dataTypes';
+import { Market, Portfolio } from '../types';
 import { exportData, importFromFile } from '../utils/export';
 
 interface MarketData {

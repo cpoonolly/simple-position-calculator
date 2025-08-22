@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 import PriceControl from './PriceControl';
 
 import { formatCurrency } from '../utils/formatters';
-import { Portfolio, Market } from '../dataTypes';
+import { Portfolio, Market } from '../types';
 
 interface Summary {
   costBasis: number;

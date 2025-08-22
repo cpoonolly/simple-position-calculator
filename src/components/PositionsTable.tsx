@@ -16,7 +16,7 @@ import { Delete as DeleteIcon } from '@mui/icons-material';
 import TickerSummary from './TickerSummary';
 
 import { formatCurrency, formatDate } from '../utils/formatters';
-import { Position, Market, Portfolio } from '../dataTypes';
+import { Position, Market, Portfolio } from '../types';
 
 export const formatPnL = (value: number): React.ReactElement => {
   const color = value >= 0 ? 'success' : 'error';

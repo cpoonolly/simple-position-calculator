@@ -1,4 +1,4 @@
-import { Market, Portfolio, OptionTrade, StockTrade, OptionSide } from '../dataTypes';
+import { Market, Portfolio, OptionTrade, StockTrade, OptionSide } from '../types';
 
 export interface ExportData {
   market: {

@@ -21,7 +21,7 @@ import { formatCurrency } from './utils/formatters';
 import { saveMarket, loadMarket, savePortfolio, loadPortfolio } from './utils/store';
 
 // Import our data types
-import { Market, Portfolio, OptionTrade, StockTrade, OptionSide } from './dataTypes';
+import { Market, Portfolio, OptionTrade, StockTrade, OptionSide } from './types';
 
 const theme = createTheme({
   palette: {
@@ -115,7 +115,9 @@ function App(): React.ReactElement {
   };
 
   const handleMarketDataChange = (ticker: string, field: 'price' | 'volatility', value: number): void => {
-    const newMarket = new Market(market.date, market.riskFreeRate);
+    const newMarket = new Market();
+    newMarket.date = market.date;
+    newMarket.riskFreeRate = market.riskFreeRate;
     
     Object.entries(market.prices).forEach(([t, data]) => {
       const price = t === ticker && field === 'price' ? value : data.price;
