@@ -114,7 +114,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
           <Box sx={{ mt: 2 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} {...({} as any)}>
-                <FormControl fullWidth>
+                <FormControl fullWidth variant="filled" size="small">
                   <InputLabel>Position Type</InputLabel>
                   <Select
                     value={positionType}
@@ -127,8 +127,8 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} sm={6}  {...({} as any)}>
-                <FormControl fullWidth>
+              <Grid item xs={12} sm={8} md={6} {...({} as any)}>
+                <FormControl fullWidth variant="filled" size="small">
                   <InputLabel>Ticker</InputLabel>
                   <Select
                     value={formData.ticker}
@@ -148,6 +148,8 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                   type="number"
                   value={formData.price}
                   onChange={(e) => handleChange('price', e.target.value)}
+                  variant="filled"
+                  size="small"
                   inputProps={{ step: 0.01, min: 0 }}
                   fullWidth
                 />
@@ -159,6 +161,8 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                   type="number"
                   value={formData.quantity}
                   onChange={(e) => handleChange('quantity', e.target.value)}
+                  variant="filled"
+                  size="small"
                   inputProps={{ step: 1, min: 1 }}
                   fullWidth
                 />
@@ -172,13 +176,15 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                       type="number"
                       value={formData.strike}
                       onChange={(e) => handleChange('strike', e.target.value)}
+                      variant="filled"
+                      size="small"
                       inputProps={{ step: 0.01, min: 0 }}
                       fullWidth
                     />
                   </Grid>
 
                   <Grid item xs={12} sm={6}  {...({} as any)}>
-                    <FormControl fullWidth>
+                    <FormControl fullWidth variant="filled" size="small">
                       <InputLabel>Option Side</InputLabel>
                       <Select
                         value={formData.side}
@@ -197,6 +203,8 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                       type="date"
                       value={formData.expiration.toISOString().split('T')[0]}
                       onChange={(e) => handleChange('expiration', new Date(e.target.value))}
+                      variant="filled"
+                      size="small"
                       InputLabelProps={{
                         shrink: true,
                       }}

@@ -84,6 +84,8 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
                   type="date"
                   value={marketDate.toISOString().split('T')[0]}
                   onChange={(e) => setMarketDate(new Date(e.target.value))}
+                  variant="filled"
+                  size="small"
                   InputLabelProps={{
                     shrink: true,
                   }}
@@ -101,6 +103,8 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
                   type="number"
                   value={riskFreeRate}
                   onChange={(e) => setRiskFreeRate(e.target.value)}
+                  variant="filled"
+                  size="small"
                   inputProps={{ step: 0.001, min: 0 }}
                   fullWidth
                 />
@@ -119,6 +123,8 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
                     value={newTicker}
                     onChange={(e) => setNewTicker(e.target.value.toUpperCase())}
                     onKeyPress={(e) => e.key === 'Enter' && handleAddTicker()}
+                    variant="filled"
+                    size="small"
                     fullWidth
                   />
                 </Grid>
@@ -148,6 +154,8 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
                       type="number"
                       value={data.price}
                       onChange={(e) => handlePriceChange(ticker, 'price', e.target.value)}
+                      variant="filled"
+                      size="small"
                       inputProps={{ step: 0.01, min: 0 }}
                       fullWidth
                     />
@@ -158,6 +166,8 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
                       type="number"
                       value={data.volatility || ''}
                       onChange={(e) => handlePriceChange(ticker, 'volatility', e.target.value)}
+                      variant="filled"
+                      size="small"
                       inputProps={{ step: 0.01, min: 0 }}
                       fullWidth
                     />
