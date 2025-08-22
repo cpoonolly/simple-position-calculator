@@ -3,11 +3,10 @@ import {
   Box,
   Stack,
   IconButton,
-  TextField,
-  Typography,
-  Slider
+  Typography
 } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
+import PriceControl from './PriceControl';
 
 interface TickerRowProps {
   ticker: string;
@@ -40,48 +39,24 @@ export default function TickerRow({
         </Stack>
         
         {/* Price Row */}
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Typography sx={{ minWidth: 80 }}>Price:</Typography>
-          <TextField
-            type="number"
-            value={price}
-            onChange={(e) => onPriceChange(ticker, 'price', e.target.value)}
-            variant="filled"
-            size="small"
-            inputProps={{ step: 0.01, min: 0, max: 1000 }}
-            sx={{ width: 120 }}
-          />
-          <Slider
-            value={price}
-            onChange={(_, value) => onPriceChange(ticker, 'price', value.toString())}
-            min={0}
-            max={1000}
-            step={0.01}
-            sx={{ flex: 1 }}
-          />
-        </Stack>
+        <PriceControl
+          label="Price"
+          value={price}
+          onChange={(value) => onPriceChange(ticker, 'price', value.toString())}
+          min={0}
+          max={1000}
+          step={0.01}
+        />
         
         {/* Volatility Row */}
-        <Stack direction="row" spacing={2} alignItems="center">
-          <Typography sx={{ minWidth: 80 }}>Volatility:</Typography>
-          <TextField
-            type="number"
-            value={volatility || ''}
-            onChange={(e) => onPriceChange(ticker, 'volatility', e.target.value)}
-            variant="filled"
-            size="small"
-            inputProps={{ step: 0.01, min: 0, max: 2 }}
-            sx={{ width: 120 }}
-          />
-          <Slider
-            value={volatility || 0}
-            onChange={(_, value) => onPriceChange(ticker, 'volatility', value.toString())}
-            min={0}
-            max={2}
-            step={0.01}
-            sx={{ flex: 1 }}
-          />
-        </Stack>
+        <PriceControl
+          label="Volatility"
+          value={volatility || 0}
+          onChange={(value) => onPriceChange(ticker, 'volatility', value.toString())}
+          min={0}
+          max={2}
+          step={0.01}
+        />
       </Stack>
     </Box>
   );

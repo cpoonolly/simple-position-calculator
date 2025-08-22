@@ -57,15 +57,9 @@ export class OptionTrade implements Position {
         if (!tickerData) {
             throw new Error(`No price data found for ticker: ${this.ticker}`);
         }
-        
-        if (!tickerData.volatility) {
-            throw new Error(`No volatility data found for ticker: ${this.ticker}`);
-        }
-        
-        if (!market.riskFreeRate) {
-            throw new Error('Risk-free rate not set in market');
-        }
-        
+
+        const volatility = tickerData.volatility || 0.5;
+        const riskFreeRate = market.riskFreeRate || 0.5;
         const timeToExpiry = (this.expiration.getTime() - market.date.getTime()) / (365.25 * 24 * 60 * 60 * 1000);
         
         if (timeToExpiry <= 0) {
@@ -81,8 +75,8 @@ export class OptionTrade implements Position {
             price: tickerData.price,
             type: this.side === OptionSide.CALL ? 'CALL' : 'PUT',
             strike: this.strike,
-            riskFreeRate: market.riskFreeRate,
-            volatility: tickerData.volatility,
+            riskFreeRate: riskFreeRate,
+            volatility: volatility,
             timeToExpiry
         });
         

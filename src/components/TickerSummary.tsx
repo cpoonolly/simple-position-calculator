@@ -1,5 +1,6 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
+import PriceControl from './PriceControl';
 
 import { formatCurrency } from '../utils/formatters';
 import { Portfolio, Market } from '../dataTypes';
@@ -15,9 +16,10 @@ interface TickerSummaryProps {
   ticker: string;
   portfolio: Portfolio;
   market: Market;
+  onPriceChange?: (ticker: string, newPrice: number) => void;
 }
 
-export default function TickerSummary({ ticker, portfolio, market }: TickerSummaryProps): React.ReactElement {
+export default function TickerSummary({ ticker, portfolio, market, onPriceChange }: TickerSummaryProps): React.ReactElement {
   const getSummary = (): Summary => {
     try {
       const costBasis = portfolio.getCostBasis(ticker);
@@ -30,13 +32,20 @@ export default function TickerSummary({ ticker, portfolio, market }: TickerSumma
   };
 
   const summary = getSummary();
+  const currentPrice = market.prices[ticker]?.price || 0;
+
+  const handlePriceChange = (newPrice: number) => {
+    if (onPriceChange) {
+      onPriceChange(ticker, newPrice);
+    }
+  };
 
   return (
     <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
       <Typography variant="h6" gutterBottom>
         {ticker}
       </Typography>
-      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap' }}>
+      <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', mb: 2 }}>
         <Box>
           <Typography variant="caption" color="text.secondary">
             Cost Basis
@@ -66,6 +75,24 @@ export default function TickerSummary({ ticker, portfolio, market }: TickerSumma
           </Typography>
         </Box>
       </Box>
+      
+      {/* Price Control */}
+      {onPriceChange && (
+        <Box sx={{ mt: 2 }}>
+          <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
+            Market Price
+          </Typography>
+          <PriceControl
+            value={currentPrice}
+            onChange={handlePriceChange}
+            showLabel={false}
+            min={0}
+            max={1000}
+            step={0.01}
+          />
+        </Box>
+      )}
+      
       {summary.error && (
         <Typography color="error" variant="caption">
           Error: {summary.error}
