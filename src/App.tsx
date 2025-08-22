@@ -107,6 +107,13 @@ function App(): React.ReactElement {
     saveMarket(newMarket);
   };
 
+  const handleImport = (newMarket: Market, newPortfolio: Portfolio): void => {
+    setMarket(newMarket);
+    setPortfolio(newPortfolio);
+    saveMarket(newMarket);
+    savePortfolio(newPortfolio);
+  };
+
   const handleAddPosition = (positionData: PositionData): void => {
     let position: StockTrade | OptionTrade;
     
@@ -269,7 +276,9 @@ function App(): React.ReactElement {
           open={marketDialogOpen}
           onClose={() => setMarketDialogOpen(false)}
           market={market}
+          portfolio={portfolio}
           onSave={handleMarketSave}
+          onImport={handleImport}
         />
 
         <AddPositionDialog
