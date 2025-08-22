@@ -7,6 +7,13 @@ export enum OptionSide {
     PUT = "PUT",
 }
 
+export interface StockData {
+    volatility: number;
+    currentPrice: number;
+    lastUpdated: Date;
+    ticker: string;
+}
+
 export class Market {
     date: Date = new Date();
     riskFreeRate?: number;
@@ -22,6 +29,14 @@ export class Market {
 
     setRiskFreeRate(rate: number) {
         this.riskFreeRate = rate;
+    }
+
+    async fetchLatest(ticker?: Ticker) {
+        if (!ticker) {
+            await Promise.all(Object.keys(this.prices).map(ticker => this.fetchLatest(ticker)));
+        } else {
+            // use getStockData in marketData.ts 
+        }
     }
 
     clone(): Market {
