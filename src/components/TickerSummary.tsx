@@ -16,10 +16,10 @@ interface TickerSummaryProps {
   ticker: string;
   portfolio: Portfolio;
   market: Market;
-  onPriceChange?: (ticker: string, newPrice: number) => void;
+  onMarketDataChange?: (ticker: string, field: 'price' | 'volatility', value: number) => void;
 }
 
-export default function TickerSummary({ ticker, portfolio, market, onPriceChange }: TickerSummaryProps): React.ReactElement {
+export default function TickerSummary({ ticker, portfolio, market, onMarketDataChange }: TickerSummaryProps): React.ReactElement {
   const getSummary = (): Summary => {
     try {
       const costBasis = portfolio.getCostBasis(ticker);
@@ -33,12 +33,7 @@ export default function TickerSummary({ ticker, portfolio, market, onPriceChange
 
   const summary = getSummary();
   const currentPrice = market.prices[ticker]?.price || 0;
-
-  const handlePriceChange = (newPrice: number) => {
-    if (onPriceChange) {
-      onPriceChange(ticker, newPrice);
-    }
-  };
+  const currentVolatility = market.prices[ticker]?.volatility || 0;
 
   return (
     <Box sx={{ p: 2, borderBottom: '1px solid #e0e0e0' }}>
@@ -76,20 +71,30 @@ export default function TickerSummary({ ticker, portfolio, market, onPriceChange
         </Box>
       </Box>
       
-      {/* Price Control */}
-      {onPriceChange && (
+      {/* Market Data Controls */}
+      {onMarketDataChange && (
         <Box sx={{ mt: 2 }}>
           <Typography variant="caption" color="text.secondary" sx={{ mb: 1, display: 'block' }}>
-            Market Price
+            Market Data
           </Typography>
-          <PriceControl
-            value={currentPrice}
-            onChange={handlePriceChange}
-            showLabel={false}
-            min={0}
-            max={1000}
-            step={0.01}
-          />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            <PriceControl
+              label="Price"
+              value={currentPrice}
+              onChange={(value) => onMarketDataChange(ticker, 'price', value)}
+              min={0}
+              max={1000}
+              step={0.01}
+            />
+            <PriceControl
+              label="Volatility"
+              value={currentVolatility}
+              onChange={(value) => onMarketDataChange(ticker, 'volatility', value)}
+              min={0}
+              max={2}
+              step={0.01}
+            />
+          </Box>
         </Box>
       )}
       

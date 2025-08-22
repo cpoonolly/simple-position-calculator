@@ -12,10 +12,9 @@ import {
   Divider
 } from '@mui/material';
 
-import { Add as AddIcon, FileUpload as ImportIcon, FileDownload as ExportIcon } from '@mui/icons-material';
+import { FileUpload as ImportIcon, FileDownload as ExportIcon } from '@mui/icons-material';
 import { Market, Portfolio } from '../dataTypes';
 import { exportData, importFromFile } from '../utils/export';
-import TickerRow from './TickerRow';
 
 interface MarketData {
   date: Date;
@@ -35,43 +34,13 @@ interface MarketSettingsDialogProps {
 export default function MarketSettingsDialog({ open, onClose, market, portfolio, onSave, onImport }: MarketSettingsDialogProps): React.ReactElement {
   const [marketDate, setMarketDate] = useState<Date>(market?.date || new Date());
   const [riskFreeRate, setRiskFreeRate] = useState<number | string>(market?.riskFreeRate || 0.05);
-  const [prices, setPrices] = useState<{ [ticker: string]: { price: number; volatility?: number } }>(market?.prices || {});
-  const [newTicker, setNewTicker] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleAddTicker = (): void => {
-    if (newTicker && !prices[newTicker]) {
-      setPrices(prev => ({
-        ...prev,
-        [newTicker]: { price: 100, volatility: 0.2 }
-      }));
-      setNewTicker('');
-    }
-  };
-
-  const handleRemoveTicker = (ticker: string): void => {
-    setPrices(prev => {
-      const newPrices = { ...prev };
-      delete newPrices[ticker];
-      return newPrices;
-    });
-  };
-
-  const handlePriceChange = (ticker: string, field: 'price' | 'volatility', value: string): void => {
-    setPrices(prev => ({
-      ...prev,
-      [ticker]: {
-        ...prev[ticker],
-        [field]: parseFloat(value) || 0
-      }
-    }));
-  };
 
   const handleSave = (): void => {
     const newMarket: MarketData = {
       date: marketDate,
       riskFreeRate: parseFloat(riskFreeRate.toString()) || 0,
-      prices
+      prices: market?.prices || {}
     };
     onSave(newMarket);
     onClose();
@@ -177,43 +146,6 @@ export default function MarketSettingsDialog({ open, onClose, market, portfolio,
               />
             </Stack>
 
-            <Typography variant="h6" sx={{ mt: 1 }}>
-              Stock Prices & Volatilities
-            </Typography>
-
-            {/* Add New Ticker Row */}
-            <Stack direction="row" spacing={2} alignItems="center">
-              <TextField
-                label="Add New Ticker"
-                value={newTicker}
-                onChange={(e) => setNewTicker(e.target.value.toUpperCase())}
-                onKeyPress={(e) => e.key === 'Enter' && handleAddTicker()}
-                variant="filled"
-                size="small"
-                sx={{ flex: 2 }}
-              />
-              <Button
-                variant="contained"
-                startIcon={<AddIcon />}
-                onClick={handleAddTicker}
-                disabled={!newTicker}
-                sx={{ flex: 1 }}
-              >
-                Add
-              </Button>
-            </Stack>
-
-            {/* Ticker Rows */}
-            {Object.entries(prices).map(([ticker, data]) => (
-              <TickerRow
-                key={ticker}
-                ticker={ticker}
-                price={data.price}
-                volatility={data.volatility}
-                onPriceChange={handlePriceChange}
-                onRemove={handleRemoveTicker}
-              />
-            ))}
           </Stack>
         </DialogContent>
         <DialogActions>

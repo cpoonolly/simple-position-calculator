@@ -114,12 +114,13 @@ function App(): React.ReactElement {
     savePortfolio(newPortfolio);
   };
 
-  const handlePriceChange = (ticker: string, newPrice: number): void => {
+  const handleMarketDataChange = (ticker: string, field: 'price' | 'volatility', value: number): void => {
     const newMarket = new Market(market.date, market.riskFreeRate);
     
     Object.entries(market.prices).forEach(([t, data]) => {
-      const price = t === ticker ? newPrice : data.price;
-      newMarket.setPrice(t, price, data.volatility);
+      const price = t === ticker && field === 'price' ? value : data.price;
+      const volatility = t === ticker && field === 'volatility' ? value : data.volatility;
+      newMarket.setPrice(t, price, volatility);
     });
     
     setMarket(newMarket);
@@ -252,7 +253,7 @@ function App(): React.ReactElement {
                 positions={portfolio.positions}
                 market={market}
                 onDelete={handleDeletePosition}
-                onPriceChange={handlePriceChange}
+                onMarketDataChange={handleMarketDataChange}
               />
             ) : (
               portfolio.getAllTickers(market).map(ticker => (
@@ -260,7 +261,7 @@ function App(): React.ReactElement {
                   key={ticker}
                   positions={portfolio.getPositionsByTicker(ticker)}
                   market={market}
-                  onPriceChange={handlePriceChange}
+                  onMarketDataChange={handleMarketDataChange}
                   onDelete={(index: number) => {
                     const tickerPositions = portfolio.getPositionsByTicker(ticker);
                     const positionToDelete = tickerPositions[index];

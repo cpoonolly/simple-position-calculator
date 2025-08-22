@@ -38,12 +38,12 @@ interface PositionsTableProps {
   positions: Position[];
   market: Market;
   onDelete: (index: number) => void;
-  onPriceChange?: (ticker: string, newPrice: number) => void;
+  onMarketDataChange?: (ticker: string, field: 'price' | 'volatility', value: number) => void;
   ticker?: string;
   portfolio?: Portfolio;
 }
 
-export default function PositionsTable({ positions, market, onDelete, onPriceChange, ticker, portfolio }: PositionsTableProps): React.ReactElement {
+export default function PositionsTable({ positions, market, onDelete, onMarketDataChange, ticker, portfolio }: PositionsTableProps): React.ReactElement {
   const calculatePositionValues = (position: Position): PositionValues => {
     try {
       const costBasis = position.getCostBasis();
@@ -73,7 +73,7 @@ export default function PositionsTable({ positions, market, onDelete, onPriceCha
   return (
     <Paper sx={{ mb: 3 }}>
       {ticker && portfolio && (
-        <TickerSummary ticker={ticker} portfolio={portfolio} market={market} onPriceChange={onPriceChange} />
+        <TickerSummary ticker={ticker} portfolio={portfolio} market={market} onMarketDataChange={onMarketDataChange} />
       )}
       <TableContainer>
       <Table>
