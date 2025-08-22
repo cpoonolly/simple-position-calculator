@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Container,
   AppBar,
@@ -18,6 +18,7 @@ import AddPositionDialog from './components/AddPositionDialog';
 import PositionsTable from './components/PositionsTable';
 
 import { formatCurrency } from './utils/formatters';
+import { saveMarket, loadMarket, savePortfolio, loadPortfolio } from './utils/store';
 
 // Import our data types
 import { Market, Portfolio, OptionTrade, StockTrade, OptionSide } from './dataTypes';
@@ -72,6 +73,12 @@ interface PositionData {
 
 function App(): React.ReactElement {
   const [market, setMarket] = useState<Market>(() => {
+    const savedMarket = loadMarket();
+    if (savedMarket) {
+      return savedMarket;
+    }
+    
+    // Default market data if no saved data exists
     const m = new Market();
     m.setRiskFreeRate(0.05);
     m.setPrice('AAPL', 150, 0.25);
@@ -80,7 +87,10 @@ function App(): React.ReactElement {
     return m;
   });
 
-  const [portfolio, setPortfolio] = useState<Portfolio>(new Portfolio());
+  const [portfolio, setPortfolio] = useState<Portfolio>(() => {
+    const savedPortfolio = loadPortfolio();
+    return savedPortfolio || new Portfolio();
+  });
   const [marketDialogOpen, setMarketDialogOpen] = useState<boolean>(false);
   const [addPositionDialogOpen, setAddPositionDialogOpen] = useState<boolean>(false);
 
@@ -94,6 +104,7 @@ function App(): React.ReactElement {
     });
     
     setMarket(newMarket);
+    saveMarket(newMarket);
   };
 
   const handleAddPosition = (positionData: PositionData): void => {
@@ -119,12 +130,14 @@ function App(): React.ReactElement {
     const newPortfolio = new Portfolio();
     newPortfolio.positions = [...portfolio.positions, position];
     setPortfolio(newPortfolio);
+    savePortfolio(newPortfolio);
   };
 
   const handleDeletePosition = (index: number): void => {
     const newPortfolio = new Portfolio();
     newPortfolio.positions = portfolio.positions.filter((_, i) => i !== index);
     setPortfolio(newPortfolio);
+    savePortfolio(newPortfolio);
   };
 
   const getAvailableTickers = (): string[] => {
