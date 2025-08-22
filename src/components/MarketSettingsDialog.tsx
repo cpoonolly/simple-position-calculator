@@ -87,6 +87,11 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
                   InputLabelProps={{
                     shrink: true,
                   }}
+                  sx={{
+                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                      filter: 'invert(1)',
+                    },
+                  }}
                   fullWidth
                 />
               </Grid>
@@ -160,7 +165,7 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
                   <Grid item xs={3}  {...({} as any)}>
                     <IconButton 
                       onClick={() => handleRemoveTicker(ticker)}
-                      color="error"
+                      sx={{ color: 'white' }}
                     >
                       <DeleteIcon />
                     </IconButton>

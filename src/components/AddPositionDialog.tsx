@@ -200,6 +200,11 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                       InputLabelProps={{
                         shrink: true,
                       }}
+                      sx={{
+                        '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                          filter: 'invert(1)',
+                        },
+                      }}
                       fullWidth
                     />
                   </Grid>

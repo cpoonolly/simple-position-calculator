@@ -24,12 +24,12 @@ import { Market, Portfolio, OptionTrade, StockTrade, OptionSide } from './dataTy
 
 const theme = createTheme({
   palette: {
-    mode: 'light',
+    mode: 'dark',
     primary: {
-      main: '#1976d2',
+      main: '#00c851',
     },
     secondary: {
-      main: '#dc004e',
+      main: '#1b5e20',
     },
   },
 });

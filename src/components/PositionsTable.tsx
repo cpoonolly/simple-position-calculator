@@ -152,8 +152,8 @@ export default function PositionsTable({ positions, market, onDelete, ticker, po
                 <TableCell>
                   <IconButton 
                     onClick={() => onDelete(index)}
-                    color="error"
                     size="small"
+                    sx={{ color: 'white' }}
                   >
                     <DeleteIcon />
                   </IconButton>
