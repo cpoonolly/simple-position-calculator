@@ -12,26 +12,13 @@ import {
   IconButton,
   Box
 } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material';
+import { Delete as DeleteIcon } from '@mui/icons-material'
+;
 import TickerSummary from './TickerSummary';
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2
-  }).format(value);
-};
+import { formatCurrency, formatDate } from '../utils/formatters';
 
-const formatDate = (date) => {
-  return new Intl.DateTimeFormat('en-US', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric'
-  }).format(new Date(date));
-};
-
-const formatPnL = (value) => {
+export const formatPnL = (value: number): React.ReactElement => {
   const color = value >= 0 ? 'success' : 'error';
   return (
     <Typography color={color} fontWeight="bold">

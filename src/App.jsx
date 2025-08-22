@@ -7,7 +7,6 @@ import {
   Button,
   Box,
   Paper,
-  Grid,
   Fab
 } from '@mui/material';
 import { Settings as SettingsIcon, Add as AddIcon } from '@mui/icons-material';
@@ -17,6 +16,8 @@ import CssBaseline from '@mui/material/CssBaseline';
 import MarketSettingsDialog from './components/MarketSettingsDialog';
 import AddPositionDialog from './components/AddPositionDialog';
 import PositionsTable from './components/PositionsTable';
+
+import { formatCurrency } from './utils/formatters';
 
 // Import our data types
 import { Market, Portfolio, OptionTrade, StockTrade, OptionSide } from './dataTypes';
@@ -33,13 +34,6 @@ const theme = createTheme({
   },
 });
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2
-  }).format(value);
-};
 
 function App() {
   const [market, setMarket] = useState(() => {

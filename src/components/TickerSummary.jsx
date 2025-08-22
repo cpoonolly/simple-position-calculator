@@ -1,13 +1,7 @@
 import React from 'react';
-import { Box, Typography, Paper } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency: 'USD',
-    minimumFractionDigits: 2
-  }).format(value);
-};
+import { formatCurrency } from '../utils/formatters';
 
 export default function TickerSummary({ ticker, portfolio, market }) {
   const getSummary = () => {
