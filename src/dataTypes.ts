@@ -1,11 +1,11 @@
-type Ticker = string;
+export type Ticker = string;
 
-enum OptionSide {
+export enum OptionSide {
     CALL = "CALL",
     PUT = "PUT",
 }
 
-class Market {
+export class Market {
     date: Date = new Date();
     riskFreeRate?: number;
     prices: { [ticker: Ticker]: { price: number; volatility?: number; } } = {};
@@ -30,13 +30,13 @@ class Market {
     }
 }
 
-interface Position {
+export interface Position {
     getCostBasis(): number;
     getMarkToMarket(market: Market): number;
     getPnL(market: Market): number;
 }
 
-class OptionTrade implements Position {
+export class OptionTrade implements Position {
     ticker: Ticker;
     strike: number;
     price: number; // Per-share premium (e.g., $5 per share)
@@ -92,7 +92,7 @@ class OptionTrade implements Position {
     }
 }
 
-class StockTrade implements Position {
+export class StockTrade implements Position {
     ticker: Ticker;
     price: number;
     quantity: number;
@@ -115,7 +115,7 @@ class StockTrade implements Position {
     }
 }
 
-class Portfolio implements Position {
+export class Portfolio implements Position {
     positions: Position[] = [];
 
     getCostBasis(): number {
