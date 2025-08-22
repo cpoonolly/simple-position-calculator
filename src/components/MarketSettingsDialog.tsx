@@ -8,7 +8,7 @@ import {
   TextField,
   Typography,
   Box,
-  Grid,
+  Stack,
   IconButton
 } from '@mui/material';
 
@@ -76,114 +76,101 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
       <Dialog open={open} onClose={onClose} maxWidth="md" fullWidth>
         <DialogTitle>Market Settings</DialogTitle>
         <DialogContent>
-          <Box sx={{ mt: 2 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}  {...({} as any)}>
-                <TextField
-                  label="Market Date"
-                  type="date"
-                  value={marketDate.toISOString().split('T')[0]}
-                  onChange={(e) => setMarketDate(new Date(e.target.value))}
-                  variant="filled"
-                  size="small"
-                  InputLabelProps={{
-                    shrink: true,
-                  }}
-                  sx={{
-                    '& input[type="date"]::-webkit-calendar-picker-indicator': {
-                      filter: 'invert(1)',
-                    },
-                  }}
-                  fullWidth
-                />
-              </Grid>
-              <Grid item xs={12} sm={6}  {...({} as any)}>
-                <TextField
-                  label="Risk-Free Rate"
-                  type="number"
-                  value={riskFreeRate}
-                  onChange={(e) => setRiskFreeRate(e.target.value)}
-                  variant="filled"
-                  size="small"
-                  inputProps={{ step: 0.001, min: 0 }}
-                  fullWidth
-                />
-              </Grid>
-            </Grid>
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            {/* Market Date & Risk-Free Rate */}
+            <Stack direction="row" spacing={2}>
+              <TextField
+                label="Market Date"
+                type="date"
+                value={marketDate.toISOString().split('T')[0]}
+                onChange={(e) => setMarketDate(new Date(e.target.value))}
+                variant="filled"
+                size="small"
+                InputLabelProps={{
+                  shrink: true,
+                }}
+                sx={{
+                  '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                    filter: 'invert(1)',
+                  },
+                }}
+                fullWidth
+              />
+              <TextField
+                label="Risk-Free Rate"
+                type="number"
+                value={riskFreeRate}
+                onChange={(e) => setRiskFreeRate(e.target.value)}
+                variant="filled"
+                size="small"
+                inputProps={{ step: 0.001, min: 0 }}
+                fullWidth
+              />
+            </Stack>
 
-            <Typography variant="h6" sx={{ mt: 3, mb: 2 }}>
+            <Typography variant="h6" sx={{ mt: 1 }}>
               Stock Prices & Volatilities
             </Typography>
 
-            <Box sx={{ mb: 2 }}>
-              <Grid container spacing={2} alignItems="center">
-                <Grid item xs={8}  {...({} as any)}>
+            {/* Add New Ticker Row */}
+            <Stack direction="row" spacing={2} alignItems="center">
+              <TextField
+                label="Add New Ticker"
+                value={newTicker}
+                onChange={(e) => setNewTicker(e.target.value.toUpperCase())}
+                onKeyPress={(e) => e.key === 'Enter' && handleAddTicker()}
+                variant="filled"
+                size="small"
+                sx={{ flex: 2 }}
+              />
+              <Button
+                variant="contained"
+                startIcon={<AddIcon />}
+                onClick={handleAddTicker}
+                disabled={!newTicker}
+                sx={{ flex: 1 }}
+              >
+                Add
+              </Button>
+            </Stack>
+
+            {/* Ticker Rows */}
+            {Object.entries(prices).map(([ticker, data]) => (
+              <Box key={ticker} sx={{ p: 2, border: '1px solid #5f5f5f', borderRadius: 1 }}>
+                <Stack direction="row" spacing={2} alignItems="center">
+                  <Box sx={{ minWidth: 80 }}>
+                    <Typography variant="h6">{ticker}</Typography>
+                  </Box>
                   <TextField
-                    label="Add New Ticker"
-                    value={newTicker}
-                    onChange={(e) => setNewTicker(e.target.value.toUpperCase())}
-                    onKeyPress={(e) => e.key === 'Enter' && handleAddTicker()}
+                    label="Price"
+                    type="number"
+                    value={data.price}
+                    onChange={(e) => handlePriceChange(ticker, 'price', e.target.value)}
                     variant="filled"
                     size="small"
+                    inputProps={{ step: 0.01, min: 0 }}
                     fullWidth
                   />
-                </Grid>
-                <Grid item xs={4}  {...({} as any)}>
-                  <Button
-                    variant="contained"
-                    startIcon={<AddIcon />}
-                    onClick={handleAddTicker}
-                    disabled={!newTicker}
+                  <TextField
+                    label="Volatility"
+                    type="number"
+                    value={data.volatility || ''}
+                    onChange={(e) => handlePriceChange(ticker, 'volatility', e.target.value)}
+                    variant="filled"
+                    size="small"
+                    inputProps={{ step: 0.01, min: 0 }}
                     fullWidth
+                  />
+                  <IconButton 
+                    onClick={() => handleRemoveTicker(ticker)}
+                    sx={{ color: 'white', minWidth: 48 }}
                   >
-                    Add
-                  </Button>
-                </Grid>
-              </Grid>
-            </Box>
-
-            {Object.entries(prices).map(([ticker, data]) => (
-              <Box key={ticker} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
-                <Grid container spacing={2} alignItems="center">
-                  <Grid item xs={3}  {...({} as any)}>
-                    <Typography variant="h6">{ticker}</Typography>
-                  </Grid>
-                  <Grid item xs={3}  {...({} as any)}>
-                    <TextField
-                      label="Price"
-                      type="number"
-                      value={data.price}
-                      onChange={(e) => handlePriceChange(ticker, 'price', e.target.value)}
-                      variant="filled"
-                      size="small"
-                      inputProps={{ step: 0.01, min: 0 }}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={3}  {...({} as any)}>
-                    <TextField
-                      label="Volatility"
-                      type="number"
-                      value={data.volatility || ''}
-                      onChange={(e) => handlePriceChange(ticker, 'volatility', e.target.value)}
-                      variant="filled"
-                      size="small"
-                      inputProps={{ step: 0.01, min: 0 }}
-                      fullWidth
-                    />
-                  </Grid>
-                  <Grid item xs={3}  {...({} as any)}>
-                    <IconButton 
-                      onClick={() => handleRemoveTicker(ticker)}
-                      sx={{ color: 'white' }}
-                    >
-                      <DeleteIcon />
-                    </IconButton>
-                  </Grid>
-                </Grid>
+                    <DeleteIcon />
+                  </IconButton>
+                </Stack>
               </Box>
             ))}
-          </Box>
+          </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
