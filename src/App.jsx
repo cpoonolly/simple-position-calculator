@@ -119,20 +119,19 @@ function App() {
       <Box sx={{ flexGrow: 1 }}>
         <AppBar position="static">
           <Toolbar>
-            <Button
-              color="inherit"
-              startIcon={<SettingsIcon />}
-              onClick={() => setMarketDialogOpen(true)}
-              sx={{ mr: 2 }}
-            >
-              Market Settings
-            </Button>
             <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
               Portfolio Calculator
             </Typography>
-            <Typography variant="body2">
+            <Typography variant="body2" sx={{ mr: 2 }}>
               Market Date: {market.date.toLocaleDateString()}
             </Typography>
+            <Button
+              color="inherit"
+              onClick={() => setMarketDialogOpen(true)}
+              sx={{ minWidth: 'auto', p: 1 }}
+            >
+              <SettingsIcon />
+            </Button>
           </Toolbar>
         </AppBar>
 
