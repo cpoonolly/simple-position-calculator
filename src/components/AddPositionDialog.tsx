@@ -12,12 +12,39 @@ import {
   InputLabel,
   Grid,
   Box,
-  Typography
+  Typography,
+  SelectChangeEvent
 } from '@mui/material';
 
-export default function AddPositionDialog({ open, onClose, onAdd, availableTickers }) {
-  const [positionType, setPositionType] = useState('stock');
-  const [formData, setFormData] = useState({
+interface FormData {
+  ticker: string;
+  price: string;
+  quantity: string;
+  strike: string;
+  expiration: Date;
+  side: 'CALL' | 'PUT';
+}
+
+interface PositionData {
+  type: 'stock' | 'option';
+  ticker: string;
+  price: number;
+  quantity: number;
+  strike?: number;
+  expiration?: Date;
+  side?: 'CALL' | 'PUT';
+}
+
+interface AddPositionDialogProps {
+  open: boolean;
+  onClose: () => void;
+  onAdd: (position: PositionData) => void;
+  availableTickers: string[];
+}
+
+export default function AddPositionDialog({ open, onClose, onAdd, availableTickers }: AddPositionDialogProps): React.ReactElement {
+  const [positionType, setPositionType] = useState<'stock' | 'option'>('stock');
+  const [formData, setFormData] = useState<FormData>({
     ticker: '',
     price: '',
     quantity: '',
@@ -26,15 +53,27 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
     side: 'CALL'
   });
 
-  const handleChange = (field, value) => {
+  const handleChange = (field: keyof FormData, value: string | Date): void => {
     setFormData(prev => ({
       ...prev,
       [field]: value
     }));
   };
 
-  const handleAdd = () => {
-    const position = {
+  const handlePositionTypeChange = (event: SelectChangeEvent<string>): void => {
+    setPositionType(event.target.value as 'stock' | 'option');
+  };
+
+  const handleTickerChange = (event: SelectChangeEvent<string>): void => {
+    handleChange('ticker', event.target.value);
+  };
+
+  const handleSideChange = (event: SelectChangeEvent<string>): void => {
+    handleChange('side', event.target.value as 'CALL' | 'PUT');
+  };
+
+  const handleAdd = (): void => {
+    const position: PositionData = {
       type: positionType,
       ticker: formData.ticker,
       price: parseFloat(formData.price),
@@ -60,12 +99,12 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
     onClose();
   };
 
-  const isFormValid = () => {
+  const isFormValid = (): boolean => {
     const baseValid = formData.ticker && formData.price && formData.quantity;
     if (positionType === 'option') {
-      return baseValid && formData.strike;
+      return !!(baseValid && formData.strike);
     }
-    return baseValid;
+    return !!baseValid;
   };
 
   return (
@@ -79,7 +118,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                   <InputLabel>Position Type</InputLabel>
                   <Select
                     value={positionType}
-                    onChange={(e) => setPositionType(e.target.value)}
+                    onChange={handlePositionTypeChange}
                     label="Position Type"
                   >
                     <MenuItem value="stock">Stock</MenuItem>
@@ -93,7 +132,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                   <InputLabel>Ticker</InputLabel>
                   <Select
                     value={formData.ticker}
-                    onChange={(e) => handleChange('ticker', e.target.value)}
+                    onChange={handleTickerChange}
                     label="Ticker"
                   >
                     {availableTickers.map(ticker => (
@@ -143,7 +182,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                       <InputLabel>Option Side</InputLabel>
                       <Select
                         value={formData.side}
-                        onChange={(e) => handleChange('side', e.target.value)}
+                        onChange={handleSideChange}
                         label="Option Side"
                       >
                         <MenuItem value="CALL">Call</MenuItem>

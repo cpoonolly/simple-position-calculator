@@ -34,9 +34,24 @@ const theme = createTheme({
   },
 });
 
+interface MarketData {
+  date: Date;
+  riskFreeRate: number;
+  prices: { [ticker: string]: { price: number; volatility?: number } };
+}
 
-function App() {
-  const [market, setMarket] = useState(() => {
+interface PositionData {
+  type: 'stock' | 'option';
+  ticker: string;
+  price: number;
+  quantity: number;
+  strike?: number;
+  expiration?: Date;
+  side?: 'CALL' | 'PUT';
+}
+
+function App(): React.ReactElement {
+  const [market, setMarket] = useState<Market>(() => {
     const m = new Market();
     m.setRiskFreeRate(0.05);
     m.setPrice('AAPL', 150, 0.25);
@@ -45,11 +60,11 @@ function App() {
     return m;
   });
 
-  const [portfolio, setPortfolio] = useState(new Portfolio());
-  const [marketDialogOpen, setMarketDialogOpen] = useState(false);
-  const [addPositionDialogOpen, setAddPositionDialogOpen] = useState(false);
+  const [portfolio, setPortfolio] = useState<Portfolio>(new Portfolio());
+  const [marketDialogOpen, setMarketDialogOpen] = useState<boolean>(false);
+  const [addPositionDialogOpen, setAddPositionDialogOpen] = useState<boolean>(false);
 
-  const handleMarketSave = (newMarketData) => {
+  const handleMarketSave = (newMarketData: MarketData): void => {
     const newMarket = new Market();
     newMarket.setDate(newMarketData.date);
     newMarket.setRiskFreeRate(newMarketData.riskFreeRate);
@@ -61,8 +76,8 @@ function App() {
     setMarket(newMarket);
   };
 
-  const handleAddPosition = (positionData) => {
-    let position;
+  const handleAddPosition = (positionData: PositionData): void => {
+    let position: StockTrade | OptionTrade;
     
     if (positionData.type === 'stock') {
       position = new StockTrade();
@@ -74,9 +89,9 @@ function App() {
       position.ticker = positionData.ticker;
       position.price = positionData.price;
       position.quantity = positionData.quantity;
-      position.strike = positionData.strike;
-      position.expiration = positionData.expiration;
-      position.side = OptionSide[positionData.side];
+      position.strike = positionData.strike!;
+      position.expiration = positionData.expiration!;
+      position.side = OptionSide[positionData.side!];
     }
     
     const newPortfolio = new Portfolio();
@@ -84,13 +99,13 @@ function App() {
     setPortfolio(newPortfolio);
   };
 
-  const handleDeletePosition = (index) => {
+  const handleDeletePosition = (index: number): void => {
     const newPortfolio = new Portfolio();
     newPortfolio.positions = portfolio.positions.filter((_, i) => i !== index);
     setPortfolio(newPortfolio);
   };
 
-  const getAvailableTickers = () => {
+  const getAvailableTickers = (): string[] => {
     return Object.keys(market.prices);
   };
 
@@ -101,7 +116,7 @@ function App() {
       const totalPnL = portfolio.getPnL(market);
       return { totalCostBasis, totalMarkToMarket, totalPnL };
     } catch (error) {
-      return { totalCostBasis: 0, totalMarkToMarket: 0, totalPnL: 0, error: error.message };
+      return { totalCostBasis: 0, totalMarkToMarket: 0, totalPnL: 0, error: (error as Error).message };
     }
   };
 
@@ -190,7 +205,7 @@ function App() {
                   key={ticker}
                   positions={portfolio.getPositionsByTicker(ticker)}
                   market={market}
-                  onDelete={(index) => {
+                  onDelete={(index: number) => {
                     const tickerPositions = portfolio.getPositionsByTicker(ticker);
                     const positionToDelete = tickerPositions[index];
                     const globalIndex = portfolio.positions.indexOf(positionToDelete);

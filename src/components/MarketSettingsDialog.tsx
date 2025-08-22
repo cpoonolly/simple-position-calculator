@@ -13,14 +13,28 @@ import {
 } from '@mui/material';
 
 import { Add as AddIcon, Delete as DeleteIcon } from '@mui/icons-material';
+import { Market } from '../dataTypes';
 
-export default function MarketSettingsDialog({ open, onClose, market, onSave }) {
-  const [marketDate, setMarketDate] = useState(market?.date || new Date());
-  const [riskFreeRate, setRiskFreeRate] = useState(market?.riskFreeRate || 0.05);
-  const [prices, setPrices] = useState(market?.prices || {});
-  const [newTicker, setNewTicker] = useState('');
+interface MarketData {
+  date: Date;
+  riskFreeRate: number;
+  prices: { [ticker: string]: { price: number; volatility?: number } };
+}
 
-  const handleAddTicker = () => {
+interface MarketSettingsDialogProps {
+  open: boolean;
+  onClose: () => void;
+  market: Market;
+  onSave: (marketData: MarketData) => void;
+}
+
+export default function MarketSettingsDialog({ open, onClose, market, onSave }: MarketSettingsDialogProps): React.ReactElement {
+  const [marketDate, setMarketDate] = useState<Date>(market?.date || new Date());
+  const [riskFreeRate, setRiskFreeRate] = useState<number | string>(market?.riskFreeRate || 0.05);
+  const [prices, setPrices] = useState<{ [ticker: string]: { price: number; volatility?: number } }>(market?.prices || {});
+  const [newTicker, setNewTicker] = useState<string>('');
+
+  const handleAddTicker = (): void => {
     if (newTicker && !prices[newTicker]) {
       setPrices(prev => ({
         ...prev,
@@ -30,7 +44,7 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }) 
     }
   };
 
-  const handleRemoveTicker = (ticker) => {
+  const handleRemoveTicker = (ticker: string): void => {
     setPrices(prev => {
       const newPrices = { ...prev };
       delete newPrices[ticker];
@@ -38,7 +52,7 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }) 
     });
   };
 
-  const handlePriceChange = (ticker, field, value) => {
+  const handlePriceChange = (ticker: string, field: 'price' | 'volatility', value: string): void => {
     setPrices(prev => ({
       ...prev,
       [ticker]: {
@@ -48,10 +62,10 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }) 
     }));
   };
 
-  const handleSave = () => {
-    const newMarket = {
+  const handleSave = (): void => {
+    const newMarket: MarketData = {
       date: marketDate,
-      riskFreeRate: parseFloat(riskFreeRate) || 0,
+      riskFreeRate: parseFloat(riskFreeRate.toString()) || 0,
       prices
     };
     onSave(newMarket);

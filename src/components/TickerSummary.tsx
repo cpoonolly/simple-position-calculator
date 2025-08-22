@@ -2,16 +2,30 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 
 import { formatCurrency } from '../utils/formatters';
+import { Portfolio, Market } from '../dataTypes';
 
-export default function TickerSummary({ ticker, portfolio, market }) {
-  const getSummary = () => {
+interface Summary {
+  costBasis: number;
+  markToMarket: number;
+  pnl: number;
+  error?: string;
+}
+
+interface TickerSummaryProps {
+  ticker: string;
+  portfolio: Portfolio;
+  market: Market;
+}
+
+export default function TickerSummary({ ticker, portfolio, market }: TickerSummaryProps): React.ReactElement {
+  const getSummary = (): Summary => {
     try {
       const costBasis = portfolio.getCostBasis(ticker);
       const markToMarket = portfolio.getMarkToMarket(market, ticker);
       const pnl = portfolio.getPnL(market, ticker);
       return { costBasis, markToMarket, pnl };
     } catch (error) {
-      return { costBasis: 0, markToMarket: 0, pnl: 0, error: error.message };
+      return { costBasis: 0, markToMarket: 0, pnl: 0, error: (error as Error).message };
     }
   };
 

@@ -12,11 +12,11 @@ import {
   IconButton,
   Box
 } from '@mui/material';
-import { Delete as DeleteIcon } from '@mui/icons-material'
-;
+import { Delete as DeleteIcon } from '@mui/icons-material';
 import TickerSummary from './TickerSummary';
 
 import { formatCurrency, formatDate } from '../utils/formatters';
+import { Position, Market, Portfolio } from '../dataTypes';
 
 export const formatPnL = (value: number): React.ReactElement => {
   const color = value >= 0 ? 'success' : 'error';
@@ -27,8 +27,23 @@ export const formatPnL = (value: number): React.ReactElement => {
   );
 };
 
-export default function PositionsTable({ positions, market, onDelete, ticker, portfolio }) {
-  const calculatePositionValues = (position) => {
+interface PositionValues {
+  costBasis: number;
+  markToMarket: number;
+  pnl: number;
+  error?: string;
+}
+
+interface PositionsTableProps {
+  positions: Position[];
+  market: Market;
+  onDelete: (index: number) => void;
+  ticker?: string;
+  portfolio?: Portfolio;
+}
+
+export default function PositionsTable({ positions, market, onDelete, ticker, portfolio }: PositionsTableProps): React.ReactElement {
+  const calculatePositionValues = (position: Position): PositionValues => {
     try {
       const costBasis = position.getCostBasis();
       const markToMarket = position.getMarkToMarket(market);
@@ -39,7 +54,7 @@ export default function PositionsTable({ positions, market, onDelete, ticker, po
         costBasis: 0, 
         markToMarket: 0, 
         pnl: 0, 
-        error: error.message 
+        error: (error as Error).message 
       };
     }
   };
@@ -91,23 +106,23 @@ export default function PositionsTable({ positions, market, onDelete, ticker, po
                   />
                 </TableCell>
                 <TableCell><strong>{position.ticker}</strong></TableCell>
-                <TableCell>{formatCurrency(position.price)}</TableCell>
+                <TableCell>{formatCurrency((position as any).price)}</TableCell>
                 <TableCell>
-                  {position.quantity}
+                  {(position as any).quantity}
                   {isOption && ' contracts'}
                 </TableCell>
                 <TableCell>
-                  {isOption ? formatCurrency(position.strike) : '-'}
+                  {isOption ? formatCurrency((position as any).strike) : '-'}
                 </TableCell>
                 <TableCell>
-                  {isOption ? formatDate(position.expiration) : '-'}
+                  {isOption ? formatDate((position as any).expiration) : '-'}
                 </TableCell>
                 <TableCell>
                   {isOption ? (
                     <Chip 
-                      label={position.side} 
+                      label={(position as any).side} 
                       size="small"
-                      color={position.side === 'CALL' ? 'success' : 'warning'}
+                      color={(position as any).side === 'CALL' ? 'success' : 'warning'}
                     />
                   ) : '-'}
                 </TableCell>
