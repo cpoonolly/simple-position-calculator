@@ -9,13 +9,13 @@ import {
   Typography,
   Box,
   Stack,
-  IconButton,
   Divider
 } from '@mui/material';
 
-import { Add as AddIcon, Delete as DeleteIcon, FileUpload as ImportIcon, FileDownload as ExportIcon } from '@mui/icons-material';
+import { Add as AddIcon, FileUpload as ImportIcon, FileDownload as ExportIcon } from '@mui/icons-material';
 import { Market, Portfolio } from '../dataTypes';
 import { exportData, importFromFile } from '../utils/export';
+import TickerRow from './TickerRow';
 
 interface MarketData {
   date: Date;
@@ -205,39 +205,14 @@ export default function MarketSettingsDialog({ open, onClose, market, portfolio,
 
             {/* Ticker Rows */}
             {Object.entries(prices).map(([ticker, data]) => (
-              <Box key={ticker} sx={{ p: 2, border: '1px solid #5f5f5f', borderRadius: 1 }}>
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <Box sx={{ minWidth: 80 }}>
-                    <Typography variant="h6">{ticker}</Typography>
-                  </Box>
-                  <TextField
-                    label="Price"
-                    type="number"
-                    value={data.price}
-                    onChange={(e) => handlePriceChange(ticker, 'price', e.target.value)}
-                    variant="filled"
-                    size="small"
-                    inputProps={{ step: 0.01, min: 0 }}
-                    fullWidth
-                  />
-                  <TextField
-                    label="Volatility"
-                    type="number"
-                    value={data.volatility || ''}
-                    onChange={(e) => handlePriceChange(ticker, 'volatility', e.target.value)}
-                    variant="filled"
-                    size="small"
-                    inputProps={{ step: 0.01, min: 0 }}
-                    fullWidth
-                  />
-                  <IconButton 
-                    onClick={() => handleRemoveTicker(ticker)}
-                    sx={{ color: 'white', minWidth: 48 }}
-                  >
-                    <DeleteIcon />
-                  </IconButton>
-                </Stack>
-              </Box>
+              <TickerRow
+                key={ticker}
+                ticker={ticker}
+                price={data.price}
+                volatility={data.volatility}
+                onPriceChange={handlePriceChange}
+                onRemove={handleRemoveTicker}
+              />
             ))}
           </Stack>
         </DialogContent>
