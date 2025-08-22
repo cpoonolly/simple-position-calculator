@@ -148,8 +148,18 @@ export class Portfolio {
         return this.positions.filter(p => p.ticker === ticker);
     }
 
-    getAllTickers(): string[] {
+    getAllTickers(market?: Market): string[] {
         const tickers = new Set(this.positions.map(p => p.ticker));
-        return Array.from(tickers).sort();
+        const tickerArray = Array.from(tickers);
+        
+        if (market) {
+            return tickerArray.sort((a, b) => {
+                const marketValueA = this.getMarkToMarket(market, a);
+                const marketValueB = this.getMarkToMarket(market, b);
+                return marketValueB - marketValueA; // Descending order
+            });
+        }
+        
+        return tickerArray.sort();
     }
 }

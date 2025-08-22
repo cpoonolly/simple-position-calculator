@@ -235,14 +235,14 @@ function App(): React.ReactElement {
             <Typography variant="h5" gutterBottom>
               Positions
             </Typography>
-            {portfolio.getAllTickers().length === 0 ? (
+            {portfolio.getAllTickers(market).length === 0 ? (
               <PositionsTable 
                 positions={portfolio.positions}
                 market={market}
                 onDelete={handleDeletePosition}
               />
             ) : (
-              portfolio.getAllTickers().map(ticker => (
+              portfolio.getAllTickers(market).map(ticker => (
                 <PositionsTable 
                   key={ticker}
                   positions={portfolio.getPositionsByTicker(ticker)}
