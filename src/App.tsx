@@ -80,18 +80,20 @@ function App(): React.ReactElement {
     let position: StockTrade | OptionTrade;
     
     if (positionData.type === 'stock') {
-      position = new StockTrade();
-      position.ticker = positionData.ticker;
-      position.price = positionData.price;
-      position.quantity = positionData.quantity;
+      const trade = new StockTrade();
+      trade.ticker = positionData.ticker;
+      trade.price = positionData.price;
+      trade.quantity = positionData.quantity;
+      position = trade;
     } else {
-      position = new OptionTrade();
-      position.ticker = positionData.ticker;
-      position.price = positionData.price;
-      position.quantity = positionData.quantity;
-      position.strike = positionData.strike!;
-      position.expiration = positionData.expiration!;
-      position.side = OptionSide[positionData.side!];
+      const trade = new OptionTrade();
+      trade.ticker = positionData.ticker;
+      trade.price = positionData.price;
+      trade.quantity = positionData.quantity;
+      trade.strike = positionData.strike!;
+      trade.expiration = positionData.expiration!;
+      trade.side = OptionSide[positionData.side!];
+      position = trade;
     }
     
     const newPortfolio = new Portfolio();

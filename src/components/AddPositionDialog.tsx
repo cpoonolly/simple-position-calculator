@@ -113,7 +113,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
         <DialogContent>
           <Box sx={{ mt: 2 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12}>
+              <Grid item xs={12} {...({} as any)}>
                 <FormControl fullWidth>
                   <InputLabel>Position Type</InputLabel>
                   <Select
@@ -127,7 +127,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6}  {...({} as any)}>
                 <FormControl fullWidth>
                   <InputLabel>Ticker</InputLabel>
                   <Select
@@ -142,7 +142,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                 </FormControl>
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6}  {...({} as any)}>
                 <TextField
                   label={positionType === 'option' ? 'Premium (per share)' : 'Price (per share)'}
                   type="number"
@@ -153,7 +153,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                 />
               </Grid>
 
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6}  {...({} as any)}>
                 <TextField
                   label={positionType === 'option' ? 'Contracts' : 'Shares'}
                   type="number"
@@ -166,7 +166,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
 
               {positionType === 'option' && (
                 <>
-                  <Grid item xs={12} sm={6}>
+                  <Grid item xs={12} sm={6}  {...({} as any)}>
                     <TextField
                       label="Strike Price"
                       type="number"
@@ -177,7 +177,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                     />
                   </Grid>
 
-                  <Grid item xs={12} sm={6}>
+                  <Grid item xs={12} sm={6}  {...({} as any)}>
                     <FormControl fullWidth>
                       <InputLabel>Option Side</InputLabel>
                       <Select
@@ -191,7 +191,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                     </FormControl>
                   </Grid>
 
-                  <Grid item xs={12}>
+                  <Grid item xs={12}  {...({} as any)}>
                     <TextField
                       label="Expiration Date"
                       type="date"
@@ -207,7 +207,7 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
               )}
 
               {positionType === 'option' && (
-                <Grid item xs={12}>
+                <Grid item xs={12}  {...({} as any)}>
                   <Typography variant="caption" color="text.secondary">
                     Note: Premium is per share (multiply by 100 for contract value)
                   </Typography>

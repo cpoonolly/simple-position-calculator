@@ -78,7 +78,7 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
         <DialogContent>
           <Box sx={{ mt: 2 }}>
             <Grid container spacing={2}>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6}  {...({} as any)}>
                 <TextField
                   label="Market Date"
                   type="date"
@@ -90,7 +90,7 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
                   fullWidth
                 />
               </Grid>
-              <Grid item xs={12} sm={6}>
+              <Grid item xs={12} sm={6}  {...({} as any)}>
                 <TextField
                   label="Risk-Free Rate"
                   type="number"
@@ -108,7 +108,7 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
 
             <Box sx={{ mb: 2 }}>
               <Grid container spacing={2} alignItems="center">
-                <Grid item xs={8}>
+                <Grid item xs={8}  {...({} as any)}>
                   <TextField
                     label="Add New Ticker"
                     value={newTicker}
@@ -117,7 +117,7 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
                     fullWidth
                   />
                 </Grid>
-                <Grid item xs={4}>
+                <Grid item xs={4}  {...({} as any)}>
                   <Button
                     variant="contained"
                     startIcon={<AddIcon />}
@@ -134,10 +134,10 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
             {Object.entries(prices).map(([ticker, data]) => (
               <Box key={ticker} sx={{ mb: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
                 <Grid container spacing={2} alignItems="center">
-                  <Grid item xs={3}>
+                  <Grid item xs={3}  {...({} as any)}>
                     <Typography variant="h6">{ticker}</Typography>
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={3}  {...({} as any)}>
                     <TextField
                       label="Price"
                       type="number"
@@ -147,7 +147,7 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
                       fullWidth
                     />
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={3}  {...({} as any)}>
                     <TextField
                       label="Volatility"
                       type="number"
@@ -157,7 +157,7 @@ export default function MarketSettingsDialog({ open, onClose, market, onSave }: 
                       fullWidth
                     />
                   </Grid>
-                  <Grid item xs={3}>
+                  <Grid item xs={3}  {...({} as any)}>
                     <IconButton 
                       onClick={() => handleRemoveTicker(ticker)}
                       color="error"
