@@ -10,9 +10,9 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Grid,
   Box,
   Typography,
+  Stack,
   SelectChangeEvent
 } from '@mui/material';
 
@@ -111,53 +111,40 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
       <Dialog open={open} onClose={onClose} maxWidth="sm" fullWidth>
         <DialogTitle>Add Position</DialogTitle>
         <DialogContent>
-          <Box sx={{ mt: 2 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12} {...({} as any)}>
-                <FormControl fullWidth variant="filled" size="small">
-                  <InputLabel>Position Type</InputLabel>
-                  <Select
-                    value={positionType}
-                    onChange={handlePositionTypeChange}
-                    label="Position Type"
-                  >
-                    <MenuItem value="stock">Stock</MenuItem>
-                    <MenuItem value="option">Option</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
+          <Stack spacing={2} sx={{ mt: 2 }}>
+            {/* First row: Position Type & Ticker */}
+            <Stack direction="row" spacing={2}>
+              <FormControl fullWidth variant="filled" size="small">
+                <InputLabel>Position Type</InputLabel>
+                <Select
+                  value={positionType}
+                  onChange={handlePositionTypeChange}
+                  label="Position Type"
+                >
+                  <MenuItem value="stock">Stock</MenuItem>
+                  <MenuItem value="option">Option</MenuItem>
+                </Select>
+              </FormControl>
 
-              <Grid item xs={12} sm={8} md={6} {...({} as any)}>
-                <FormControl fullWidth variant="filled" size="small">
-                  <InputLabel>Ticker</InputLabel>
-                  <Select
-                    value={formData.ticker}
-                    onChange={handleTickerChange}
-                    label="Ticker"
-                  >
-                    {availableTickers.map(ticker => (
-                      <MenuItem key={ticker} value={ticker}>{ticker}</MenuItem>
-                    ))}
-                  </Select>
-                </FormControl>
-              </Grid>
+              <FormControl fullWidth variant="filled" size="small">
+                <InputLabel>Ticker</InputLabel>
+                <Select
+                  value={formData.ticker}
+                  onChange={handleTickerChange}
+                  label="Ticker"
+                >
+                  {availableTickers.map(ticker => (
+                    <MenuItem key={ticker} value={ticker}>{ticker}</MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            </Stack>
 
-              <Grid item xs={12} sm={6}  {...({} as any)}>
+            {/* Stock: Second row - Shares & Price per share */}
+            {positionType === 'stock' && (
+              <Stack direction="row" spacing={2}>
                 <TextField
-                  label={positionType === 'option' ? 'Premium (per share)' : 'Price (per share)'}
-                  type="number"
-                  value={formData.price}
-                  onChange={(e) => handleChange('price', e.target.value)}
-                  variant="filled"
-                  size="small"
-                  inputProps={{ step: 0.01, min: 0 }}
-                  fullWidth
-                />
-              </Grid>
-
-              <Grid item xs={12} sm={6}  {...({} as any)}>
-                <TextField
-                  label={positionType === 'option' ? 'Contracts' : 'Shares'}
+                  label="Shares"
                   type="number"
                   value={formData.quantity}
                   onChange={(e) => handleChange('quantity', e.target.value)}
@@ -166,68 +153,97 @@ export default function AddPositionDialog({ open, onClose, onAdd, availableTicke
                   inputProps={{ step: 1, min: 1 }}
                   fullWidth
                 />
-              </Grid>
 
-              {positionType === 'option' && (
-                <>
-                  <Grid item xs={12} sm={6}  {...({} as any)}>
-                    <TextField
-                      label="Strike Price"
-                      type="number"
-                      value={formData.strike}
-                      onChange={(e) => handleChange('strike', e.target.value)}
-                      variant="filled"
-                      size="small"
-                      inputProps={{ step: 0.01, min: 0 }}
-                      fullWidth
-                    />
-                  </Grid>
+                <TextField
+                  label="Price (per share)"
+                  type="number"
+                  value={formData.price}
+                  onChange={(e) => handleChange('price', e.target.value)}
+                  variant="filled"
+                  size="small"
+                  inputProps={{ step: 0.01, min: 0 }}
+                  fullWidth
+                />
+              </Stack>
+            )}
 
-                  <Grid item xs={12} sm={6}  {...({} as any)}>
-                    <FormControl fullWidth variant="filled" size="small">
-                      <InputLabel>Option Side</InputLabel>
-                      <Select
-                        value={formData.side}
-                        onChange={handleSideChange}
-                        label="Option Side"
-                      >
-                        <MenuItem value="CALL">Call</MenuItem>
-                        <MenuItem value="PUT">Put</MenuItem>
-                      </Select>
-                    </FormControl>
-                  </Grid>
+            {/* Option: Second row - Option type, Strike price, & Expiration date */}
+            {positionType === 'option' && (
+              <>
+                <Stack direction="row" spacing={2}>
+                  <FormControl fullWidth variant="filled" size="small">
+                    <InputLabel>Option Side</InputLabel>
+                    <Select
+                      value={formData.side}
+                      onChange={handleSideChange}
+                      label="Option Side"
+                    >
+                      <MenuItem value="CALL">Call</MenuItem>
+                      <MenuItem value="PUT">Put</MenuItem>
+                    </Select>
+                  </FormControl>
 
-                  <Grid item xs={12}  {...({} as any)}>
-                    <TextField
-                      label="Expiration Date"
-                      type="date"
-                      value={formData.expiration.toISOString().split('T')[0]}
-                      onChange={(e) => handleChange('expiration', new Date(e.target.value))}
-                      variant="filled"
-                      size="small"
-                      InputLabelProps={{
-                        shrink: true,
-                      }}
-                      sx={{
-                        '& input[type="date"]::-webkit-calendar-picker-indicator': {
-                          filter: 'invert(1)',
-                        },
-                      }}
-                      fullWidth
-                    />
-                  </Grid>
-                </>
-              )}
+                  <TextField
+                    label="Strike Price"
+                    type="number"
+                    value={formData.strike}
+                    onChange={(e) => handleChange('strike', e.target.value)}
+                    variant="filled"
+                    size="small"
+                    inputProps={{ step: 0.01, min: 0 }}
+                    fullWidth
+                  />
 
-              {positionType === 'option' && (
-                <Grid item xs={12}  {...({} as any)}>
-                  <Typography variant="caption" color="text.secondary">
-                    Note: Premium is per share (multiply by 100 for contract value)
-                  </Typography>
-                </Grid>
-              )}
-            </Grid>
-          </Box>
+                  <TextField
+                    label="Expiration Date"
+                    type="date"
+                    value={formData.expiration.toISOString().split('T')[0]}
+                    onChange={(e) => handleChange('expiration', new Date(e.target.value))}
+                    variant="filled"
+                    size="small"
+                    InputLabelProps={{
+                      shrink: true,
+                    }}
+                    sx={{
+                      '& input[type="date"]::-webkit-calendar-picker-indicator': {
+                        filter: 'invert(1)',
+                      },
+                    }}
+                    fullWidth
+                  />
+                </Stack>
+
+                {/* Option: Third row - Contracts & Premium */}
+                <Stack direction="row" spacing={2}>
+                  <TextField
+                    label="Contracts"
+                    type="number"
+                    value={formData.quantity}
+                    onChange={(e) => handleChange('quantity', e.target.value)}
+                    variant="filled"
+                    size="small"
+                    inputProps={{ step: 1, min: 1 }}
+                    fullWidth
+                  />
+
+                  <TextField
+                    label="Premium (per share)"
+                    type="number"
+                    value={formData.price}
+                    onChange={(e) => handleChange('price', e.target.value)}
+                    variant="filled"
+                    size="small"
+                    inputProps={{ step: 0.01, min: 0 }}
+                    fullWidth
+                  />
+                </Stack>
+
+                <Typography variant="caption" color="text.secondary">
+                  Note: Premium is per share (multiply by 100 for contract value)
+                </Typography>
+              </>
+            )}
+          </Stack>
         </DialogContent>
         <DialogActions>
           <Button onClick={onClose}>Cancel</Button>
