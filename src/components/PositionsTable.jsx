@@ -9,9 +9,11 @@ import {
   Paper,
   Typography,
   Chip,
-  IconButton
+  IconButton,
+  Box
 } from '@mui/material';
 import { Delete as DeleteIcon } from '@mui/icons-material';
+import TickerSummary from './TickerSummary';
 
 const formatCurrency = (value) => {
   return new Intl.NumberFormat('en-US', {
@@ -38,7 +40,7 @@ const formatPnL = (value) => {
   );
 };
 
-export default function PositionsTable({ positions, market, onDelete }) {
+export default function PositionsTable({ positions, market, onDelete, ticker, portfolio }) {
   const calculatePositionValues = (position) => {
     try {
       const costBasis = position.getCostBasis();
@@ -59,14 +61,18 @@ export default function PositionsTable({ positions, market, onDelete }) {
     return (
       <Paper sx={{ p: 3, textAlign: 'center' }}>
         <Typography variant="h6" color="text.secondary">
-          No positions yet. Add your first position to get started.
+          {ticker ? `No positions for ${ticker} yet.` : 'No positions yet. Add your first position to get started.'}
         </Typography>
       </Paper>
     );
   }
 
   return (
-    <TableContainer component={Paper}>
+    <Paper sx={{ mb: 3 }}>
+      {ticker && portfolio && (
+        <TickerSummary ticker={ticker} portfolio={portfolio} market={market} />
+      )}
+      <TableContainer>
       <Table>
         <TableHead>
           <TableRow>
@@ -155,6 +161,7 @@ export default function PositionsTable({ positions, market, onDelete }) {
           })}
         </TableBody>
       </Table>
-    </TableContainer>
+      </TableContainer>
+    </Paper>
   );
 }

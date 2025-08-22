@@ -184,11 +184,29 @@ function App() {
             <Typography variant="h5" gutterBottom>
               Positions
             </Typography>
-            <PositionsTable 
-              positions={portfolio.positions}
-              market={market}
-              onDelete={handleDeletePosition}
-            />
+            {portfolio.getAllTickers().length === 0 ? (
+              <PositionsTable 
+                positions={portfolio.positions}
+                market={market}
+                onDelete={handleDeletePosition}
+              />
+            ) : (
+              portfolio.getAllTickers().map(ticker => (
+                <PositionsTable 
+                  key={ticker}
+                  positions={portfolio.getPositionsByTicker(ticker)}
+                  market={market}
+                  onDelete={(index) => {
+                    const tickerPositions = portfolio.getPositionsByTicker(ticker);
+                    const positionToDelete = tickerPositions[index];
+                    const globalIndex = portfolio.positions.indexOf(positionToDelete);
+                    handleDeletePosition(globalIndex);
+                  }}
+                  ticker={ticker}
+                  portfolio={portfolio}
+                />
+              ))
+            )}
           </Box>
         </Container>
 

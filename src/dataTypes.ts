@@ -1,3 +1,5 @@
+import { calculateOptionPrice } from "./utils/blackScholes";
+
 export type Ticker = string;
 
 export enum OptionSide {
@@ -31,6 +33,8 @@ export class Market {
 }
 
 export interface Position {
+    ticker: Ticker;
+    
     getCostBasis(): number;
     getMarkToMarket(market: Market): number;
     getPnL(market: Market): number;
@@ -49,8 +53,6 @@ export class OptionTrade implements Position {
     }
 
     getMarkToMarket(market: Market): number {
-        const { calculateOptionPrice } = require('./utils/blackScholes');
-        
         const tickerData = market.prices[this.ticker];
         if (!tickerData) {
             throw new Error(`No price data found for ticker: ${this.ticker}`);
@@ -115,22 +117,39 @@ export class StockTrade implements Position {
     }
 }
 
-export class Portfolio implements Position {
+export class Portfolio {
     positions: Position[] = [];
 
-    getCostBasis(): number {
-        return this.positions.reduce((total, position) => {
+    getCostBasis(ticker?: string): number {
+        const filteredPositions = ticker 
+            ? this.positions.filter(p => p.ticker === ticker)
+            : this.positions;
+            
+        return filteredPositions.reduce((total, position) => {
             return total + position.getCostBasis();
         }, 0);
     }
 
-    getMarkToMarket(market: Market) {
-        return this.positions.reduce((total, position) => {
+    getMarkToMarket(market: Market, ticker?: string): number {
+        const filteredPositions = ticker 
+            ? this.positions.filter(p => p.ticker === ticker)
+            : this.positions;
+            
+        return filteredPositions.reduce((total, position) => {
             return total + position.getMarkToMarket(market);
         }, 0);
     }
 
-    getPnL(market: Market): number {
-        return this.getMarkToMarket(market) - this.getCostBasis();
+    getPnL(market: Market, ticker?: string): number {
+        return this.getMarkToMarket(market, ticker) - this.getCostBasis(ticker);
+    }
+
+    getPositionsByTicker(ticker: string): Position[] {
+        return this.positions.filter(p => p.ticker === ticker);
+    }
+
+    getAllTickers(): string[] {
+        const tickers = new Set(this.positions.map(p => p.ticker));
+        return Array.from(tickers).sort();
     }
 }
